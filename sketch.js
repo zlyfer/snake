@@ -20,7 +20,7 @@ function draw() {
   background(100);
 
   showField();
-  showScore();
+  showSidebar();
 
   gameover = snake.gameover(body);
   if (gameover) {
@@ -31,9 +31,9 @@ function draw() {
 }
 
 function initInputs() {
-  speedslider = createSlider(1, 25, 8);
-  speedslider.position(745, 550);
-  speedslider.style('width', '100px');
+  speedslider = createSlider(5, 25, 22);
+  speedslider.position(720, 550);
+  speedslider.style('width', '125px');
   borderkillcheckbox = createCheckbox('', true);
   borderkillcheckbox.style('background-color', 'rgb(244, 67, 54)');
   borderkillcheckbox.position(830, 580);
@@ -48,11 +48,15 @@ function newGame() {
   time = score = stime = length = 0;
   gameover = dir = newdir = false;
   oldsecond = second();
-  speed = speedslider.value();
+  speed = 30 - (speedslider.value());
   borderkill = borderkillcheckbox.checked();
 }
 
-function showScore() {
+function showSidebar() {
+  strokeWeight(0);
+  fill(244, 67, 54);
+  rect(602, -2, 250, 604);
+
   fill(33);
   textAlign(LEFT);
 
@@ -63,10 +67,6 @@ function showScore() {
   text('Speed', 610, 560);
   text('Borderkill', 610, 585);
 
-  if (gameover || stime == 0) {
-    speed = speedslider.value();
-  }
-
   textSize(20);
 
   textAlign(LEFT);
@@ -76,7 +76,7 @@ function showScore() {
   text('Food:', 610, 100);
 
   textAlign(RIGHT);
-  text(speed, 840, 25);
+  text(speedslider.value() / (25 / 100) + "%", 840, 25);
   text(stime, 840, 50);
   text(score, 840, 75);
   text(length, 840, 100);
@@ -84,10 +84,6 @@ function showScore() {
 
 function showField() {
   strokeWeight(0);
-
-  fill(244, 67, 54);
-  rect(602, -2, 250, 604);
-
   fill(200);
   for (let i = 0; i < 600; i += 40) {
     for (let j = 0; j < 600; j += 40) {
@@ -117,6 +113,9 @@ function endGame() {
 }
 
 function playGame() {
+  if (gameover || stime == 0) {
+    speed = 30 - (speedslider.value());
+  }
   if (time < speed) {
     time++;
   }
@@ -142,16 +141,18 @@ function playGame() {
     }
   }
 
-  snake.teleport();
+  food.pulsate();
+  if (!(borderkill)) {
+    snake.teleport();
+  }
   showGame();
 
   food = snake.eat(food);
   if (borderkill) {
-    score = round((27 - speed) * length);
+    score = round((26 - speed) * length);
   } else {
-    score = round((27 - speed) * (length / 2));
+    score = round((26 - speed) * (length / 2));
   }
-
   if (!(dir)) {
     oldsecond = second();
   }

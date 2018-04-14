@@ -11,19 +11,17 @@ class Snake {
     }
   }
   teleport() {
-    if (!(borderkill)) {
-      if (this.x + 40 > 600) {
-        this.x = 0;
-      }
-      if (this.x < 0) {
-        this.x = 560;
-      }
-      if (this.y < 0) {
-        this.y = 560;
-      }
-      if (this.y + 40 > 600) {
-        this.y = 0;
-      }
+    if (this.x + 40 > 600) {
+      this.x = 0;
+    }
+    if (this.x < 0) {
+      this.x = 560;
+    }
+    if (this.y < 0) {
+      this.y = 560;
+    }
+    if (this.y + 40 > 600) {
+      this.y = 0;
     }
   }
   gameover(body) {
@@ -91,6 +89,8 @@ class Body {
 
 class Food {
   constructor(snake, body) {
+    this.size = 350;
+    this.pulsation = -1;
     this.x = round(random(14)) * 40;
     this.y = round(random(14)) * 40;
     while (this.x == snake.x && this.y == snake.y) {
@@ -102,13 +102,27 @@ class Food {
         while (this.x == body[i].x && this.y == body[i].y) {
           this.x = round(random(14)) * 40;
           this.y = round(random(14)) * 40;
+          this.y = round(random(14)) * 40;
         }
       }
     }
   }
+  pulsate() {
+    if (this.size == 350) {
+      this.pulsation = -1;
+    } else if (this.size == 250) {
+      this.pulsation = 1;
+    }
+    this.size += this.pulsation;
+  }
   show() {
     strokeWeight(0);
     fill(33, 150, 243);
-    rect(this.x + 5, this.y + 5, 30, 30);
+    rect(
+      this.x + 1 + (20 - (this.size / 20)),
+      this.y + 1 + (20 - (this.size / 20)),
+      this.size / 10 - 2,
+      this.size / 10 - 2
+    );
   }
 }
