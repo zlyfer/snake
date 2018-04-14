@@ -102,7 +102,7 @@ class Food {
         while (this.x == body[i].x && this.y == body[i].y) {
           this.x = round(random(14)) * 40;
           this.y = round(random(14)) * 40;
-          this.y = round(random(14)) * 40;
+          i = 0;
         }
       }
     }
