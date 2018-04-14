@@ -115,6 +115,7 @@ function endGame() {
 function playGame() {
   if (gameover || stime == 0) {
     speed = 30 - (speedslider.value());
+    borderkill = borderkillcheckbox.checked();
   }
   if (time < speed) {
     time++;
