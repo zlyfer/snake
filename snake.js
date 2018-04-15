@@ -1,7 +1,7 @@
 class Snake {
-  constructor(x, y, size) {
-    this.x = x;
-    this.y = y;
+  constructor() {
+    this.x = random([2, 7, 12]) * 40;
+    this.y = random([2, 7, 12]) * 40;
   }
   eat(food) {
     if (food.x == this.x && food.y == this.y) {
@@ -29,7 +29,7 @@ class Snake {
       return true;
     }
 
-    if (borderkill) {
+    if (!(infinity)) {
       if (
         this.x + 40 > 600 ||
         this.x < 0 ||
@@ -64,9 +64,10 @@ class Snake {
     }
   }
   show() {
-    strokeWeight(0);
-    fill(46, 125, 50);
-    rect(this.x + 1, this.y + 1, 38, 38);
+    strokeWeight(1);
+    stroke(250);
+    fill(snakeColor);
+    rect(this.x - 1, this.y - 1, 41, 41);
   }
 }
 
@@ -75,21 +76,27 @@ class Body {
     this.x = -40;
     this.y = -40;
     this.attach = attach;
+    this.h = round(hue(bodyColor));
+    this.s = round(saturation(bodyColor));
+    this.b = round(random(brightness(bodyColor) - 10, brightness(bodyColor) + 10));
   }
   follow() {
     this.x = this.attach.x;
     this.y = this.attach.y;
   }
   show() {
-    strokeWeight(0);
-    fill(76, 175, 80);
-    rect(this.x + 1, this.y + 1, 38, 38);
+    strokeWeight(1);
+    colorMode(HSB, 360, 100, 100, 1);
+    fill(this.h, this.s, this.b);
+    colorMode(RGB, 255);
+    stroke(250);
+    rect(this.x + 5, this.y + 5, 30, 30);
   }
 }
 
 class Food {
   constructor(snake, body) {
-    this.size = 350;
+    this.size = round(random(250, 350));
     this.pulsation = -1;
     this.x = round(random(14)) * 40;
     this.y = round(random(14)) * 40;
@@ -116,13 +123,14 @@ class Food {
     this.size += this.pulsation;
   }
   show() {
-    strokeWeight(0);
-    fill(33, 150, 243);
+    strokeWeight(1);
+    stroke(250);
+    fill(foodColor1);
     rect(
-      this.x + 1 + (20 - (this.size / 20)),
-      this.y + 1 + (20 - (this.size / 20)),
-      this.size / 10 - 2,
-      this.size / 10 - 2
+      this.x - 1 + (20 - (this.size / 20)),
+      this.y - 1 + (20 - (this.size / 20)),
+      this.size / 10 + 1,
+      this.size / 10 + 1
     );
   }
 }
