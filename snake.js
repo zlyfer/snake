@@ -29,7 +29,7 @@ class Snake {
       return true;
     }
 
-    if (!(infinity)) {
+    if (borders && !(infinity)) {
       if (
         this.x + 40 > 600 ||
         this.x < 0 ||
@@ -42,6 +42,13 @@ class Snake {
 
     for (let i = 0; i < body.length; i++) {
       if (this.x == body[i].x && this.y == body[i].y) {
+        if (biteoff) {
+          body.splice(i, body.length - i);
+          return false;
+        }
+        if (infinity) {
+          return false;
+        }
         return true;
       }
     }
@@ -67,7 +74,7 @@ class Snake {
     strokeWeight(1);
     stroke(250);
     fill(snakeColor);
-    rect(this.x - 1, this.y - 1, 41, 41);
+    rect(this.x + 1, this.y + 1, 37, 37);
   }
 }
 
@@ -90,7 +97,7 @@ class Body {
     fill(this.h, this.s, this.b);
     colorMode(RGB, 255);
     stroke(250);
-    rect(this.x + 5, this.y + 5, 30, 30);
+    rect(this.x + 5, this.y + 5, 29, 29);
   }
 }
 
