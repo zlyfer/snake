@@ -1,8 +1,12 @@
 var snake, body, food;
 var oldsecond, newdir;
-var gameover, time, dir;
+var gameover, time, dir, seed, timelimit;
 var speedslider, borderscheckbox, infinitycheckbox;
-var score, speed, stime, length, borders, infinity, biteoff;
+var seedcheckbox, seedinput;
+var timelimitcheckbox, timelimitinput;
+var lengthlimitcheckbox, lengthlimitinput;
+var score, speed, stime, length;
+var borders, infinity, biteoff;
 
 const snakeColor = 'rgb(25, 118, 210)';
 const bodyColor = 'rgb(30, 136, 229)';
@@ -36,17 +40,62 @@ function draw() {
 
 function initInputs() {
   speedslider = createSlider(0, 29, 25);
-  speedslider.style('width', '100px');
   speedslider.position(735, 251);
+  speedslider.style('width', '100px');
+
   borderscheckbox = createCheckbox('', true);
-  borderscheckbox.style('background-color', bgColor3);
   borderscheckbox.position(880, 280);
+  borderscheckbox.style('background-color', bgColor3);
+
   biteoffcheckbox = createCheckbox('', false);
-  biteoffcheckbox.style('background-color', bgColor3);
   biteoffcheckbox.position(880, 305);
+  biteoffcheckbox.style('background-color', bgColor3);
+
   infinitycheckbox = createCheckbox('', false);
-  infinitycheckbox.style('background-color', bgColor3);
   infinitycheckbox.position(880, 330);
+  infinitycheckbox.style('background-color', bgColor3);
+
+  seedcheckbox = createCheckbox('', false);
+  seedcheckbox.position(880, 355);
+  seedcheckbox.style('background-color', bgColor3);
+  seedinput = createInput('');
+  seedinput.position(735, 355);
+  seedinput.style('width', '100px');
+  seedinput.style('height', '20px');
+  seedinput.style('background-color', bgColor3);
+  seedinput.style('color', textColor1);
+  seedinput.style('border-color', bgColor2);
+  seedinput.style('border-style', 'solid');
+  seedinput.style('text-align', 'center');
+  seedinput.attribute('maxlength', '12');
+
+  timelimitcheckbox = createCheckbox('', false);
+  timelimitcheckbox.position(880, 380);
+  timelimitcheckbox.style('background-color', bgColor3);
+  timelimitinput = createInput('');
+  timelimitinput.position(735, 380);
+  timelimitinput.style('width', '100px');
+  timelimitinput.style('height', '20px');
+  timelimitinput.style('background-color', bgColor3);
+  timelimitinput.style('color', textColor1);
+  timelimitinput.style('border-color', bgColor2);
+  timelimitinput.style('border-style', 'solid');
+  timelimitinput.style('text-align', 'center');
+  timelimitinput.attribute('maxlength', '12');
+
+  lengthlimitcheckbox = createCheckbox('', false);
+  lengthlimitcheckbox.position(880, 405);
+  lengthlimitcheckbox.style('background-color', bgColor3);
+  lengthlimitinput = createInput('');
+  lengthlimitinput.position(735, 405);
+  lengthlimitinput.style('width', '100px');
+  lengthlimitinput.style('height', '20px');
+  lengthlimitinput.style('background-color', bgColor3);
+  lengthlimitinput.style('color', textColor1);
+  lengthlimitinput.style('border-color', bgColor2);
+  lengthlimitinput.style('border-style', 'solid');
+  lengthlimitinput.style('text-align', 'center');
+  lengthlimitinput.attribute('maxlength', '12');
 }
 
 function newGame() {
@@ -87,7 +136,7 @@ function showSidebar() {
   text('Stats', 755, 30);
   text('Controls', 755, 145);
   text('Settings', 755, 235);
-  text('Info', 755, 375);
+  text('Info', 755, 450);
 
   textAlign(LEFT);
   textSize(18);
@@ -100,7 +149,10 @@ function showSidebar() {
   text('Borders:', 610, 285);
   text('Bite Off Mode:', 610, 310);
   text('Infinity:', 610, 335);
-  text('Score per length:', 610, 400);
+  text('Seed:', 610, 360);
+  text('Timelimit:', 610, 385);
+  text('Lengthlimit:', 610, 410);
+  text('Score per length:', 610, 475);
 
   textAlign(RIGHT);
   text(stime, 890, 55);
@@ -109,7 +161,7 @@ function showSidebar() {
   text('Arrow Keys', 890, 170);
   text('R', 890, 195);
   text(speedslider.value() / (25 / 100) + "%", 890, 260);
-  text(calcScore(1), 890, 400);
+  text(calcScore(1), 890, 475);
 }
 
 function showField() {
@@ -131,6 +183,8 @@ function showGame() {
 }
 
 function endGame() {
+  gameover = true;
+
   fill(bgColor4);
   strokeWeight(0);
   rect(-1, 199, 602, 202);
@@ -153,10 +207,33 @@ function applySettings() {
   borders = borderscheckbox.checked();
   biteoff = biteoffcheckbox.checked();
   infinity = infinitycheckbox.checked();
+  if (seedcheckbox.checked() && !(isNaN(int(seedinput.value())))) {
+    seed = int(seedinput.value());
+  } else {
+    seed = false;
+  }
+  if (timelimitcheckbox.checked() && !(isNaN(int(timelimitinput.value())))) {
+    timelimit = int(timelimitinput.value());
+    if (timelimit == 0) {
+      timelimit = false;
+    }
+  } else {
+    timelimit = false;
+  }
+  if (lengthlimitcheckbox.checked() && !(isNaN(int(lengthlimitinput.value())))) {
+    lengthlimit = int(lengthlimitinput.value());
+  } else {
+    lengthlimit = false;
+  }
+  if (timelimit) {
+    stime = timelimit;
+  } else {
+    stime = 0;
+  }
 }
 
 function playGame() {
-  if (gameover || stime == 0) {
+  if (!(dir)) {
     applySettings();
   }
   if (infinity) {
@@ -169,6 +246,9 @@ function playGame() {
       time++;
     }
     if (time == speed) {
+      if (timelimit && stime == 0) {
+        endGame();
+      }
       dir = newdir;
       if (body.length > 0) {
         for (let i = body.length - 1; i >= 0; i--) {
@@ -193,6 +273,9 @@ function playGame() {
 
   food.pulsate();
   length = body.length;
+  if (lengthlimit && length == lengthlimit) {
+    endGame();
+  }
   gameover = snake.gameover(body);
 
   if (gameover) {
@@ -205,7 +288,11 @@ function playGame() {
       oldsecond = second();
     }
     if (oldsecond != second()) {
-      stime++;
+      if (timelimit) {
+        stime--;
+      } else {
+        stime++;
+      }
       oldsecond = second();
     }
   }
