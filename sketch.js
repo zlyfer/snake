@@ -1,6 +1,6 @@
 var snake, body, food;
 var oldsecond, newdir;
-var gameover, time, dir, seed, timelimit;
+var gameover, time, dir, seed, seedset, timelimit, scorelimit;
 var speedslider, borderscheckbox, infinitycheckbox;
 var seedcheckbox, seedinput;
 var timelimitcheckbox, timelimitinput;
@@ -103,8 +103,7 @@ function newGame() {
   snake = new Snake();
   food = new Food(snake, []);
   time = score = stime = length = 0;
-  gameover = dir = newdir = false;
-  applySettings();
+  gameover = dir = newdir = seedset = false;
   oldsecond = second();
 }
 
@@ -208,7 +207,11 @@ function applySettings() {
   biteoff = biteoffcheckbox.checked();
   infinity = infinitycheckbox.checked();
   if (seedcheckbox.checked() && !(isNaN(int(seedinput.value())))) {
-    seed = int(seedinput.value());
+    if (seed != int(seedinput.value())) {
+      seed = int(seedinput.value());
+      newGame();
+      console.log("1");
+    }
   } else {
     seed = false;
   }
@@ -305,5 +308,6 @@ function keyPressed() {
     }
   } else if (["R", "r"].indexOf(key) != -1) {
     newGame();
+    applySettings();
   }
 }

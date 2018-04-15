@@ -1,7 +1,8 @@
 class Snake {
   constructor() {
-    if (seed) {
+    if (seed && !(seedset)) {
       randomSeed(seed);
+      seedset = true;
     }
     this.x = random([2, 7, 12]) * 40;
     this.y = random([2, 7, 12]) * 40;
@@ -83,9 +84,6 @@ class Snake {
 
 class Body {
   constructor(attach) {
-    if (seed) {
-      randomSeed();
-    }
     this.x = -40;
     this.y = -40;
     this.attach = attach;
@@ -109,9 +107,6 @@ class Body {
 
 class Food {
   constructor(snake, body) {
-    if (seed) {
-      randomSeed(seed);
-    }
     this.size = round(random(250, 350));
     this.pulsation = -1;
     this.x = round(random(14)) * 40;
