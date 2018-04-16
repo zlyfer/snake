@@ -312,7 +312,7 @@ function playGame() {
 function keyPressed() {
   if ([37, 38, 39, 40].indexOf(keyCode) != -1) {
     seedinput.value(seed);
-    if (((dir - keyCode == 2 || dir - keyCode == -2)) && body.length > 0) {
+    if (((dir - keyCode == 2 || dir - keyCode == -2)) && body.length > 0 && infinity) {
       deadbody.push(new DeadBody(body[0], snake));
       body.splice(0, 1);
     }
