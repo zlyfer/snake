@@ -44,8 +44,10 @@ function draw() {
 
 function initInputs() {
   speedslider = createSlider(0, 29, 25);
-  speedslider.position(735, 251);
+  speedslider.position(735, 249);
   speedslider.style('width', '100px');
+  speedslider.style('height', '25px');
+  speedslider.style('background-color', bgColor3);
 
   borderscheckbox = createCheckbox('', true);
   borderscheckbox.position(880, 280);
