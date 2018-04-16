@@ -32,7 +32,6 @@ class Snake {
     if (gameover) {
       return true;
     }
-
     if (borders && !(infinity)) {
       if (
         this.x + 40 > 600 ||
@@ -44,10 +43,12 @@ class Snake {
       }
       foodColor
     }
-
     for (let i = 0; i < body.length; i++) {
       if (this.x == body[i].x && this.y == body[i].y) {
         if (biteoff) {
+          for (let j = i; j < body.length; j++) {
+            deadbody.push(new DeadBody(body[j]));
+          }
           body.splice(i, body.length - i);
           return false;
         }
@@ -76,8 +77,8 @@ class Snake {
     }
   }
   show() {
-    strokeWeight(1);
     stroke(250);
+    strokeWeight(1);
     fill(snakeColor);
     rect(this.x + 1, this.y + 1, 37, 37);
   }
@@ -89,23 +90,58 @@ class Body {
     this.y = -40;
     this.attach = attach;
     this.h = round(hue(bodyColor));
-    this.s = round(saturation(bodyColor));
-    this.b = round(
-      random(brightness(bodyColor) - 10,
-        brightness(bodyColor) + 10)
+    this.s = round(
+      random(saturation(bodyColor) - 10,
+        saturation(bodyColor) + 10)
     );
+    this.b = round(brightness(bodyColor));
   }
   follow() {
     this.x = this.attach.x;
     this.y = this.attach.y;
   }
   show() {
+    stroke(250);
     strokeWeight(1);
     colorMode(HSB, 360, 100, 100, 1);
     fill(this.h, this.s, this.b);
     colorMode(RGB, 255);
-    stroke(250);
     rect(this.x + 5, this.y + 5, 29, 29);
+  }
+}
+
+class DeadBody {
+  constructor(deadbody, s = false) {
+    if (s) {
+      this.x = s.x;
+      this.y = s.y
+    } else {
+      this.x = deadbody.x;
+      this.y = deadbody.y;
+    }
+    this.h = deadbody.h;
+    this.s = deadbody.s;
+    this.b = deadbody.b;
+    this.decaytimer = 50;
+  }
+  decay() {
+    this.decaytimer--;
+    if (this.decaytimer == 0) {
+      deadbody.splice(deadbody.indexOf(this), 1);
+    }
+  }
+  show() {
+    strokeWeight(1);
+    stroke(250);
+    colorMode(HSB, 360, 100, 100, 1);
+    fill(this.h, this.s, this.b);
+    colorMode(RGB, 255);
+    rect(
+      this.x + ((50 - (this.decaytimer)) / 2) / 2 + 5,
+      this.y + ((50 - (this.decaytimer)) / 2) / 2 + 5,
+      29 - ((50 - (this.decaytimer)) / 2),
+      29 - ((50 - (this.decaytimer)) / 2)
+    );
   }
 }
 
@@ -141,8 +177,8 @@ class Food {
     this.size += this.pulsation;
   }
   show() {
-    strokeWeight(1);
     stroke(250);
+    strokeWeight(1);
     fill(foodColor);
     rect(
       this.x - 1 + (20 - (this.size / 20)),
