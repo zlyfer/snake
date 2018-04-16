@@ -148,7 +148,7 @@ function showSidebar() {
   text('Speedboost:', 610, 260);
   text('Borders:', 610, 285);
   text('Bite Off Mode:', 610, 310);
-  text('Infinity Mode:', 610, 335);
+  text('180° Mode:', 610, 335);
   text('Seed:', 610, 360);
   text('Timelimit:', 610, 385);
   text('Scorelimit:', 610, 410);
