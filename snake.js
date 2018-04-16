@@ -42,6 +42,7 @@ class Snake {
       ) {
         return true;
       }
+      foodColor
     }
 
     for (let i = 0; i < body.length; i++) {
@@ -89,7 +90,10 @@ class Body {
     this.attach = attach;
     this.h = round(hue(bodyColor));
     this.s = round(saturation(bodyColor));
-    this.b = round(random(brightness(bodyColor) - 10, brightness(bodyColor) + 10));
+    this.b = round(
+      random(brightness(bodyColor) - 10,
+        brightness(bodyColor) + 10)
+    );
   }
   follow() {
     this.x = this.attach.x;
@@ -117,7 +121,10 @@ class Food {
     }
     if (body.length > 0) {
       for (let i = 0; i < body.length; i++) {
-        while (this.x == body[i].x && this.y == body[i].y) {
+        while (
+          (this.x == body[i].x && this.y == body[i].y) ||
+          (this.x == snake.x && this.y == snake.y)
+        ) {
           this.x = round(random(14)) * 40;
           this.y = round(random(14)) * 40;
           i = 0;
@@ -136,7 +143,7 @@ class Food {
   show() {
     strokeWeight(1);
     stroke(250);
-    fill(foodColor1);
+    fill(foodColor);
     rect(
       this.x - 1 + (20 - (this.size / 20)),
       this.y - 1 + (20 - (this.size / 20)),
