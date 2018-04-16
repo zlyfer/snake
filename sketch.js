@@ -1,4 +1,4 @@
-var snake, body, food;
+var snake, food, body, deadbody;
 var oldsecond, newdir;
 var gameover, time, dir;
 var seed, seedset, timelimit, scorelimit;
@@ -9,12 +9,9 @@ var scorelimitcheckbox, scorelimitinput;
 var speed, stime, score, highscore;
 var borders, infinity, biteoff;
 
-var deadbody = [];
-
 const snakeColor = 'rgb(25, 118, 210)';
 const bodyColor = 'rgb(30, 136, 229)';
 const foodColor = 'rgb(244, 67, 54)';
-
 const textColor1 = 'rgb(255, 255, 255)';
 const textColor2 = 'rgb(229, 57, 53)';
 const textColor3 = 'rgb(250, 250, 250)';
@@ -106,6 +103,7 @@ function initInputs() {
 
 function newGame() {
   body = [];
+  deadbody = [];
   gameover = dir = newdir = seedset = false;
   snake = new Snake();
   food = new Food(snake, []);
@@ -150,7 +148,7 @@ function showSidebar() {
   text('Speedboost:', 610, 260);
   text('Borders:', 610, 285);
   text('Bite Off Mode:', 610, 310);
-  text('180° Mode:', 610, 335);
+  text('Infinity Mode:', 610, 335);
   text('Seed:', 610, 360);
   text('Timelimit:', 610, 385);
   text('Scorelimit:', 610, 410);
@@ -314,7 +312,7 @@ function playGame() {
 function keyPressed() {
   if ([37, 38, 39, 40].indexOf(keyCode) != -1) {
     seedinput.value(seed);
-    if (((dir - keyCode == 2 || dir - keyCode == -2)) && body.length > 0 && infinity) {
+    if (((dir - keyCode == 2 || dir - keyCode == -2)) && body.length > 0 && infinity && biteoff) {
       deadbody.push(new DeadBody(body[0], snake));
       body.splice(0, 1);
     }

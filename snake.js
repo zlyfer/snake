@@ -84,6 +84,50 @@ class Snake {
   }
 }
 
+class Food {
+  constructor(snake, body) {
+    this.size = round(random(250, 350));
+    this.pulsation = -1;
+    this.x = round(random(14)) * 40;
+    this.y = round(random(14)) * 40;
+    while (this.x == snake.x && this.y == snake.y) {
+      this.x = round(random(14)) * 40;
+      this.y = round(random(14)) * 40;
+    }
+    if (body.length > 0) {
+      for (let i = 0; i < body.length; i++) {
+        while (
+          (this.x == body[i].x && this.y == body[i].y) ||
+          (this.x == snake.x && this.y == snake.y)
+        ) {
+          this.x = round(random(14)) * 40;
+          this.y = round(random(14)) * 40;
+          i = 0;
+        }
+      }
+    }
+  }
+  pulsate() {
+    if (this.size == 350) {
+      this.pulsation = -1;
+    } else if (this.size == 250) {
+      this.pulsation = 1;
+    }
+    this.size += this.pulsation;
+  }
+  show() {
+    stroke(250);
+    strokeWeight(1);
+    fill(foodColor);
+    rect(
+      this.x - 1 + (20 - (this.size / 20)),
+      this.y - 1 + (20 - (this.size / 20)),
+      this.size / 10 + 1,
+      this.size / 10 + 1
+    );
+  }
+}
+
 class Body {
   constructor(attach) {
     this.x = -40;
@@ -141,50 +185,6 @@ class DeadBody {
       this.y + ((50 - (this.decaytimer)) / 2) / 2 + 5,
       29 - ((50 - (this.decaytimer)) / 2),
       29 - ((50 - (this.decaytimer)) / 2)
-    );
-  }
-}
-
-class Food {
-  constructor(snake, body) {
-    this.size = round(random(250, 350));
-    this.pulsation = -1;
-    this.x = round(random(14)) * 40;
-    this.y = round(random(14)) * 40;
-    while (this.x == snake.x && this.y == snake.y) {
-      this.x = round(random(14)) * 40;
-      this.y = round(random(14)) * 40;
-    }
-    if (body.length > 0) {
-      for (let i = 0; i < body.length; i++) {
-        while (
-          (this.x == body[i].x && this.y == body[i].y) ||
-          (this.x == snake.x && this.y == snake.y)
-        ) {
-          this.x = round(random(14)) * 40;
-          this.y = round(random(14)) * 40;
-          i = 0;
-        }
-      }
-    }
-  }
-  pulsate() {
-    if (this.size == 350) {
-      this.pulsation = -1;
-    } else if (this.size == 250) {
-      this.pulsation = 1;
-    }
-    this.size += this.pulsation;
-  }
-  show() {
-    stroke(250);
-    strokeWeight(1);
-    fill(foodColor);
-    rect(
-      this.x - 1 + (20 - (this.size / 20)),
-      this.y - 1 + (20 - (this.size / 20)),
-      this.size / 10 + 1,
-      this.size / 10 + 1
     );
   }
 }
