@@ -8,6 +8,7 @@ var timelimitcheckbox, timelimitinput;
 var scorelimitcheckbox, scorelimitinput;
 var speed, stime, score, highscore;
 var borders, infinity, biteoff;
+var ftime, rtime, rindex, doReplay, replayMeta, replay;
 
 const snakeColor = 'rgb(25, 118, 210)';
 const bodyColor = 'rgb(30, 136, 229)';
@@ -104,10 +105,14 @@ function initInputs() {
 function newGame() {
   body = [];
   deadbody = [];
+  if (!(doReplay)) {
+    replay = [];
+    replayMeta = {};
+  }
   gameover = dir = newdir = seedset = false;
   snake = new Snake();
   food = new Food(snake, []);
-  time = score = 0;
+  time = score = rtime = ftime = 0;
   if (timelimit) {
     stime = timelimit;
   } else {
@@ -185,12 +190,13 @@ function showGame() {
 }
 
 function endGame() {
+  doReplay = false;
   gameover = true;
   dir = false;
 
   fill(bgColor4);
   strokeWeight(0);
-  rect(-1, 199, 602, 202);
+  rect(-1, 159, 602, 242);
 
   fill(textColor2);
   textAlign(CENTER);
@@ -198,11 +204,37 @@ function endGame() {
 
   textSize(64);
   strokeWeight(3);
-  text('GAME OVER!', 300, 300);
+  text('GAME OVER!', 300, 260);
 
   textSize(32);
   strokeWeight(2);
-  text('PRESS \'R\' TO RESTART', 300, 350);
+  text('PRESS \'R\' TO RESTART', 300, 310);
+  text('PRESS \'F\' TO WATCH REPLAY', 300, 360);
+}
+
+function applyReplaySettings() {
+  borders = replayMeta['borders'];
+  biteoff = replayMeta['biteoff'];
+  infinity = replayMeta['infinity'];
+  seed = replayMeta['seed'];
+  scorelimit = replayMeta['scorelimit'];
+  timelimit = replayMeta['timelimit'];
+
+  borderscheckbox.checked(borders);
+  biteoffcheckbox.checked(biteoff);
+  infinitycheckbox.checked(infinity);
+  seedinput.value(seed);
+  if (timelimit) {
+    timelimitinput.value(timelimit);
+    timelimitcheckbox.checked(true);
+  } else {
+    timelimitcheckbox.checked(false);
+  }
+  if (scorelimit) {
+    scorelimitcheckbox.checked(true);
+  } else {
+    scorelimitcheckbox.checked(false);
+  }
 }
 
 function applySettings() {
@@ -239,7 +271,16 @@ function applySettings() {
   } else {
     scorelimit = false;
   }
+  if (!(gameover)) {
+    replayMeta['borders'] = borders;
+    replayMeta['biteoff'] = biteoff;
+    replayMeta['infinity'] = infinity;
+    replayMeta['seed'] = seed;
+    replayMeta['scorelimit'] = scorelimit;
+    replayMeta['timelimit'] = timelimit;
+  }
 }
+
 
 function playGame() {
   if (!(dir)) {
@@ -249,7 +290,6 @@ function playGame() {
     borders = false;
     borderscheckbox.checked(false);
   }
-
   if (!(gameover)) {
     if (time < speed) {
       time++;
@@ -258,7 +298,26 @@ function playGame() {
       if (timelimit && stime == 0) {
         endGame();
       }
-      dir = newdir;
+      ftime++;
+      if (doReplay) {
+        speed = 30 - (speedslider.value());
+        rindex = replay.indexOf(ftime);
+        if (rindex != -1) {
+          dir = abs(replay[rindex + 1]);
+        }
+      } else {
+        dir = newdir;
+      }
+      if (dir) {
+        rtime++;
+        if (
+          replay[replay.length - 1] != dir - (dir * 2) &&
+          dir != 0 && newdir != 0
+        ) {
+          replay.push(rtime);
+          replay.push(newdir - (newdir * 2));
+        }
+      }
       if (body.length > 0) {
         for (let i = body.length - 1; i >= 0; i--) {
           body[i].follow();
@@ -312,7 +371,10 @@ function playGame() {
 function keyPressed() {
   if ([37, 38, 39, 40].indexOf(keyCode) != -1) {
     seedinput.value(seed);
-    if (((dir - keyCode == 2 || dir - keyCode == -2)) && body.length > 0 && infinity && biteoff) {
+    if (
+      ((dir - keyCode == 2 || dir - keyCode == -2)) && body.length > 0 &&
+      infinity && biteoff
+    ) {
       deadbody.push(new DeadBody(body[0], snake));
       body.splice(0, 1);
     }
@@ -320,10 +382,18 @@ function keyPressed() {
       newdir = keyCode;
     }
   } else if (["R", "r"].indexOf(key) != -1) {
+    doReplay = false;
     if (!(seedcheckbox.checked())) {
       newSeed();
     }
     newGame();
     applySettings();
+  } else if (["F", "f"].indexOf(key) != -1) {
+    if (gameover) {
+      doReplay = true;
+      applyReplaySettings();
+      seedcheckbox.checked(true);
+      newGame();
+    }
   }
 }
