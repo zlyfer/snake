@@ -248,7 +248,7 @@ function applySettings() {
   if (scorelimitinput.value() < 0) {
     scorelimitinput.value(0);
   }
-  if (seed != int(seedinput.value())) {
+  if (seed != int(seedinput.value()) && !(isNaN(int(seedinput.value())))) {
     if (seedinput.value()) {
       seed = int(seedinput.value());
       if (!(gameover)) {
