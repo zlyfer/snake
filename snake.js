@@ -90,10 +90,10 @@ class Food {
     this.pulsation = -1;
     this.x = round(random(14)) * 40;
     this.y = round(random(14)) * 40;
-    while (this.x == snake.x && this.y == snake.y) {
-      this.x = round(random(14)) * 40;
-      this.y = round(random(14)) * 40;
-    }
+    // while (this.x == snake.x && this.y == snake.y) {
+    //   this.x = round(random(14)) * 40;
+    //   this.y = round(random(14)) * 40;
+    // }
   }
   pulsate() {
     if (this.size == 350) {
