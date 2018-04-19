@@ -94,18 +94,6 @@ class Food {
       this.x = round(random(14)) * 40;
       this.y = round(random(14)) * 40;
     }
-    if (body.length > 0) {
-      for (let i = 0; i < body.length; i++) {
-        while (
-          (this.x == body[i].x && this.y == body[i].y) ||
-          (this.x == snake.x && this.y == snake.y)
-        ) {
-          this.x = round(random(14)) * 40;
-          this.y = round(random(14)) * 40;
-          i = 0;
-        }
-      }
-    }
   }
   pulsate() {
     if (this.size == 350) {

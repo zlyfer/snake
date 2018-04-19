@@ -3,12 +3,14 @@ var oldsecond, newdir;
 var gameover, time, dir;
 var seed, seedset, timelimit, scorelimit;
 var speedslider, borderscheckbox, infinitycheckbox;
+var replayinput;
 var seedcheckbox, seedinput;
 var timelimitcheckbox, timelimitinput;
 var scorelimitcheckbox, scorelimitinput;
 var speed, stime, score, highscore;
 var borders, infinity, biteoff;
-var ftime, rtime, rindex, doReplay, replayMeta, replay;
+var ftime, rtime, rindex, doReplay, replaySettings, replay;
+
 
 const snakeColor = 'rgb(25, 118, 210)';
 const bodyColor = 'rgb(30, 136, 229)';
@@ -38,6 +40,44 @@ function draw() {
   showField();
   showSidebar();
   playGame();
+}
+
+function keyPressed() {
+  if ([37, 38, 39, 40].indexOf(keyCode) != -1) {
+    seedinput.value(seed);
+    if (
+      ((dir - keyCode == 2 || dir - keyCode == -2)) && body.length > 0 &&
+      infinity && biteoff
+    ) {
+      deadbody.push(new DeadBody(body[0], snake));
+      body.splice(0, 1);
+    }
+    if ((dir - keyCode != 2 && dir - keyCode != -2) || infinity) {
+      newdir = keyCode;
+    }
+  } else if (["R", "r"].indexOf(key) != -1) {
+    doReplay = false;
+    if (!(seedcheckbox.checked())) {
+      newSeed();
+    }
+    newGame();
+    applySettings();
+  } else if (["F", "f"].indexOf(key) != -1) {
+    if (gameover || (replayinput.value() != "" && isValidJson(replayinput.value()))) {
+      doReplay = true;
+      applyReplaySettings();
+      newGame();
+    }
+  }
+}
+
+function isValidJson(js) {
+  try {
+    JSON.parse(js);
+  } catch (e) {
+    return false;
+  }
+  return true;
 }
 
 function initInputs() {
@@ -71,6 +111,7 @@ function initInputs() {
   seedinput.style('border-color', bgColor2);
   seedinput.style('border-style', 'solid');
   seedinput.style('text-align', 'center');
+  seedinput.style('outline', 'none');
   seedinput.attribute('maxlength', '12');
 
   timelimitcheckbox = createCheckbox('', false);
@@ -85,6 +126,7 @@ function initInputs() {
   timelimitinput.style('border-color', bgColor2);
   timelimitinput.style('border-style', 'solid');
   timelimitinput.style('text-align', 'center');
+  timelimitinput.style('outline', 'none');
   timelimitinput.attribute('maxlength', '12');
 
   scorelimitcheckbox = createCheckbox('', false);
@@ -99,141 +141,47 @@ function initInputs() {
   scorelimitinput.style('border-color', bgColor2);
   scorelimitinput.style('border-style', 'solid');
   scorelimitinput.style('text-align', 'center');
+  scorelimitinput.style('outline', 'none');
   scorelimitinput.attribute('maxlength', '12');
-}
 
-function newGame() {
-  body = [];
-  deadbody = [];
-  if (!(doReplay)) {
-    replay = [];
-    replayMeta = {};
+  replayinput = createElement('textarea');
+  replayinput.position(620, 520);
+  replayinput.style('width', '280px');
+  replayinput.style('height', '80px');
+  replayinput.style('background-color', bgColor3);
+  replayinput.style('color', textColor1);
+  replayinput.style('border-color', bgColor2);
+  replayinput.style('border-style', 'solid');
+  replayinput.style('outline', 'none');
+  replayinput.style('resize', 'none');
+  replayinput.style('overflow', 'hidden');
+  replayinput.id('ri');
+  document.getElementById('ri').onclick = function() {
+    this.focus();
+    this.select();
   }
-  gameover = dir = newdir = seedset = false;
-  snake = new Snake();
-  food = new Food(snake, []);
-  time = score = rtime = ftime = 0;
-  if (timelimit) {
-    stime = timelimit;
-  } else {
-    stime = 0;
-  }
-  oldsecond = second();
 }
 
-function newSeed() {
-  seed = round(random(999999999999));
-  seedinput.value(seed);
-}
-
-function calcScore(l) {
-  return ((31 - speed) * l);
-}
-
-function showSidebar() {
-  fill(bgColor3);
-  strokeWeight(0);
-  rect(601, -1, 301, 602);
-
-  fill(textColor1);
-
-  textAlign(CENTER);
-  textSize(20);
-  text('Stats', 755, 30);
-  text('Controls', 755, 145);
-  text('Settings', 755, 235);
-
-  textAlign(LEFT);
-  textSize(18);
-  text('Time:', 610, 55);
-  text('Score:', 610, 80);
-  text('Highscore:', 610, 105);
-  text('Movement:', 610, 170);
-  text('Restart:', 610, 195);
-  text('Speedboost:', 610, 260);
-  text('Borders:', 610, 285);
-  text('Bite Off Mode:', 610, 310);
-  text('Infinity Mode:', 610, 335);
-  text('Seed:', 610, 360);
-  text('Timelimit:', 610, 385);
-  text('Scorelimit:', 610, 410);
-
-  textAlign(RIGHT);
-  text(stime, 890, 55);
-  text(score, 890, 80);
-  text(highscore, 890, 105);
-  text('Arrow Keys', 890, 170);
-  text('R', 890, 195);
-  text(speedslider.value() / (25 / 100) + "%", 890, 260);
-}
-
-function showField() {
-  fill(bgColor2);
-  strokeWeight(0);
-  for (let i = 0; i < 600; i += 40) {
-    for (let j = 0; j < 600; j += 40) {
-      rect(i + 1, j + 1, 38, 38);
+function applyCustomReplay() {
+  let r, rs, js;
+  if (replayinput.value() != "" && isValidJson(replayinput.value())) {
+    js = JSON.parse(replayinput.value());
+    rs = js['replaySettings'];
+    r = js['replay'];
+    if (
+      r != undefined &&
+      r.length % 2 == 0 &&
+      rs['borders'] != undefined &&
+      rs['biteoff'] != undefined &&
+      rs['infinity'] != undefined &&
+      rs['seed'] != undefined &&
+      rs['seedlocked'] != undefined &&
+      rs['scorelimit'] != undefined &&
+      rs['timelimit'] != undefined
+    ) {
+      replaySettings = rs;
+      replay = r;
     }
-  }
-}
-
-function showGame() {
-  deadbody.forEach(deadpart => {
-    deadpart.show();
-    deadpart.decay();
-  });
-  food.show();
-  body.forEach(part => {
-    part.show();
-  });
-  snake.show();
-}
-
-function endGame() {
-  doReplay = false;
-  gameover = true;
-  dir = false;
-
-  fill(bgColor4);
-  strokeWeight(0);
-  rect(-1, 159, 602, 242);
-
-  fill(textColor2);
-  textAlign(CENTER);
-  stroke(textColor3);
-
-  textSize(64);
-  strokeWeight(3);
-  text('GAME OVER!', 300, 260);
-
-  textSize(32);
-  strokeWeight(2);
-  text('PRESS \'R\' TO RESTART', 300, 310);
-  text('PRESS \'F\' TO WATCH REPLAY', 300, 360);
-}
-
-function applyReplaySettings() {
-  borders = replayMeta['borders'];
-  biteoff = replayMeta['biteoff'];
-  infinity = replayMeta['infinity'];
-  seed = replayMeta['seed'];
-  scorelimit = replayMeta['scorelimit'];
-  timelimit = replayMeta['timelimit'];
-
-  borderscheckbox.checked(borders);
-  biteoffcheckbox.checked(biteoff);
-  infinitycheckbox.checked(infinity);
-  seedinput.value(seed);
-  if (timelimit) {
-    timelimitinput.value(timelimit);
-    timelimitcheckbox.checked(true);
-  } else {
-    timelimitcheckbox.checked(false);
-  }
-  if (scorelimit) {
-    scorelimitcheckbox.checked(true);
-  } else {
-    scorelimitcheckbox.checked(false);
   }
 }
 
@@ -272,15 +220,72 @@ function applySettings() {
     scorelimit = false;
   }
   if (!(gameover)) {
-    replayMeta['borders'] = borders;
-    replayMeta['biteoff'] = biteoff;
-    replayMeta['infinity'] = infinity;
-    replayMeta['seed'] = seed;
-    replayMeta['scorelimit'] = scorelimit;
-    replayMeta['timelimit'] = timelimit;
+    applyCustomReplay();
+    replaySettings['borders'] = borders;
+    replaySettings['biteoff'] = biteoff;
+    replaySettings['infinity'] = infinity;
+    replaySettings['seed'] = seed;
+    replaySettings['seedlocked'] = seedcheckbox.checked();
+    replaySettings['scorelimit'] = scorelimit;
+    replaySettings['timelimit'] = timelimit;
   }
 }
 
+function applyReplaySettings() {
+  applyCustomReplay();
+  borders = replaySettings['borders'];
+  biteoff = replaySettings['biteoff'];
+  infinity = replaySettings['infinity'];
+  seed = replaySettings['seed'];
+  scorelimit = replaySettings['scorelimit'];
+  timelimit = replaySettings['timelimit'];
+
+  borderscheckbox.checked(borders);
+  biteoffcheckbox.checked(biteoff);
+  infinitycheckbox.checked(infinity);
+  seedcheckbox.checked(replaySettings['seedlocked']);
+  seedinput.value(seed);
+  if (timelimit) {
+    timelimitinput.value(timelimit);
+    timelimitcheckbox.checked(true);
+  } else {
+    timelimitcheckbox.checked(false);
+  }
+  if (scorelimit) {
+    scorelimitcheckbox.checked(true);
+  } else {
+    scorelimitcheckbox.checked(false);
+  }
+}
+
+function newSeed() {
+  seed = round(random(999999999999));
+  seedinput.value(seed);
+}
+
+function calcScore(l) {
+  return ((31 - speed) * l);
+}
+
+function newGame() {
+  body = [];
+  deadbody = [];
+  if (!(doReplay)) {
+    replay = [];
+    replaySettings = {};
+    replayinput.value("");
+  }
+  gameover = dir = newdir = seedset = false;
+  snake = new Snake();
+  food = new Food(snake, []);
+  time = score = rtime = ftime = 0;
+  if (timelimit) {
+    stime = timelimit;
+  } else {
+    stime = 0;
+  }
+  oldsecond = second();
+}
 
 function playGame() {
   if (!(dir)) {
@@ -368,32 +373,90 @@ function playGame() {
   }
 }
 
-function keyPressed() {
-  if ([37, 38, 39, 40].indexOf(keyCode) != -1) {
-    seedinput.value(seed);
-    if (
-      ((dir - keyCode == 2 || dir - keyCode == -2)) && body.length > 0 &&
-      infinity && biteoff
-    ) {
-      deadbody.push(new DeadBody(body[0], snake));
-      body.splice(0, 1);
-    }
-    if ((dir - keyCode != 2 && dir - keyCode != -2) || infinity) {
-      newdir = keyCode;
-    }
-  } else if (["R", "r"].indexOf(key) != -1) {
-    doReplay = false;
-    if (!(seedcheckbox.checked())) {
-      newSeed();
-    }
-    newGame();
-    applySettings();
-  } else if (["F", "f"].indexOf(key) != -1) {
-    if (gameover) {
-      doReplay = true;
-      applyReplaySettings();
-      seedcheckbox.checked(true);
-      newGame();
+function showGame() {
+  deadbody.forEach(deadpart => {
+    deadpart.show();
+    deadpart.decay();
+  });
+  food.show();
+  body.forEach(part => {
+    part.show();
+  });
+  snake.show();
+}
+
+function showSidebar() {
+  fill(bgColor3);
+  strokeWeight(0);
+  rect(601, -1, 301, 602);
+
+  fill(textColor1);
+
+  textAlign(CENTER);
+  textSize(20);
+  text('Stats', 755, 30);
+  text('Controls', 755, 145);
+  text('Settings', 755, 235);
+  text('Replay Data', 755, 500);
+
+  textAlign(LEFT);
+  textSize(18);
+  text('Time:', 610, 55);
+  text('Score:', 610, 80);
+  text('Highscore:', 610, 105);
+  text('Movement:', 610, 170);
+  text('Restart:', 610, 195);
+  text('Speedboost:', 610, 260);
+  text('Borders:', 610, 285);
+  text('Bite Off Mode:', 610, 310);
+  text('Infinity Mode:', 610, 335);
+  text('Seed:', 610, 360);
+  text('Timelimit:', 610, 385);
+  text('Scorelimit:', 610, 410);
+
+  textAlign(RIGHT);
+  text(stime, 890, 55);
+  text(score, 890, 80);
+  text(highscore, 890, 105);
+  text('Arrow Keys', 890, 170);
+  text('R', 890, 195);
+  text(speedslider.value() / (25 / 100) + "%", 890, 260);
+}
+
+function showField() {
+  fill(bgColor2);
+  strokeWeight(0);
+  for (let i = 0; i < 600; i += 40) {
+    for (let j = 0; j < 600; j += 40) {
+      rect(i + 1, j + 1, 38, 38);
     }
   }
+}
+
+function endGame() {
+  doReplay = false;
+  gameover = true;
+  dir = false;
+
+  replayinput.value(JSON.stringify({
+    'replaySettings': replaySettings,
+    'replay': replay
+  }));
+
+  fill(bgColor4);
+  strokeWeight(0);
+  rect(-1, 159, 602, 242);
+
+  fill(textColor2);
+  textAlign(CENTER);
+  stroke(textColor3);
+
+  textSize(64);
+  strokeWeight(3);
+  text('GAME OVER!', 300, 260);
+
+  textSize(32);
+  strokeWeight(2);
+  text('PRESS \'R\' TO RESTART', 300, 310);
+  text('PRESS \'F\' TO WATCH REPLAY', 300, 360);
 }
