@@ -166,6 +166,7 @@ function initInputs() {
 
 function disableSettings(t) {
   if (t) {
+    speedslider.attribute('disabled', '');
     borderscheckbox.attribute('disabled', '');
     biteoffcheckbox.attribute('disabled', '');
     infinitycheckbox.attribute('disabled', '');
@@ -176,6 +177,7 @@ function disableSettings(t) {
     timelimitinput.attribute('disabled', '');
     scorelimitinput.attribute('disabled', '');
   } else {
+    speedslider.removeAttribute('disabled');
     borderscheckbox.removeAttribute('disabled');
     biteoffcheckbox.removeAttribute('disabled');
     infinitycheckbox.removeAttribute('disabled');
@@ -197,6 +199,7 @@ function applyCustomReplay() {
     if (
       r != undefined &&
       r.length % 2 == 0 &&
+      rs['speed'] != undefined &&
       rs['borders'] != undefined &&
       rs['biteoff'] != undefined &&
       rs['infinity'] != undefined &&
@@ -231,7 +234,7 @@ function applySettings() {
     }
   }
   if (timelimitcheckbox.checked() && !(isNaN(int(timelimitinput.value())))) {
-    timelimit = (int(timelimitinput.value()) / speed) * 60;
+    timelimit = round((int(timelimitinput.value()) / speed) * 60);
     if (timelimit == 0) {
       timelimit = false;
     }
@@ -247,6 +250,7 @@ function applySettings() {
   }
   if (!(gameover)) {
     applyCustomReplay();
+    replaySettings['speed'] = speed;
     replaySettings['borders'] = borders;
     replaySettings['biteoff'] = biteoff;
     replaySettings['infinity'] = infinity;
@@ -254,7 +258,7 @@ function applySettings() {
     replaySettings['seedlocked'] = seedcheckbox.checked();
     replaySettings['scorelimit'] = scorelimit;
     if (timelimit) {
-      replaySettings['timelimit'] = ((timelimit * speed) / 60);
+      replaySettings['timelimit'] = round(((timelimit * speed) / 60));
     } else {
       timelimit = false;
     }
@@ -268,6 +272,7 @@ function applySettings() {
 
 function applyReplaySettings() {
   applyCustomReplay();
+  speed = replaySettings['speed'];
   borders = replaySettings['borders'];
   biteoff = replaySettings['biteoff'];
   infinity = replaySettings['infinity'];
@@ -287,6 +292,7 @@ function applyReplaySettings() {
     timelimitcheckbox.checked(false);
   }
   if (scorelimit) {
+    scorelimitinput.value(scorelimit);
     scorelimitcheckbox.checked(true);
   } else {
     scorelimitcheckbox.checked(false);
