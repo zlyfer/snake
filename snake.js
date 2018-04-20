@@ -1,11 +1,16 @@
 class Snake {
-  constructor() {
+  constructor(s) {
     if (seed && !(seedset)) {
       randomSeed(seed);
       seedset = true;
     }
-    this.x = random([2, 7, 12]);
-    this.y = random([2, 7, 12]);
+    if (s) {
+      this.x = s.x;
+      this.y = s.y;
+    } else {
+      this.x = random([2, 7, 12]);
+      this.y = random([2, 7, 12]);
+    }
     this.rotation = 0;
   }
   eat(food, body) {
@@ -103,15 +108,16 @@ class Snake {
 }
 
 class Food {
-  constructor(snake, body) {
-    this.size = round(random(20, 35));
+  constructor(f) {
+    this.size = 30;
     this.pulsation = 1 / 8;
-    this.x = round(random(14));
-    this.y = round(random(14));
-    // while (this.x == snake.x && this.y == snake.y) {
-    //   this.x = round(random(14)) * 40;
-    //   this.y = round(random(14)) * 40;
-    // }
+    if (f) {
+      this.x = f.x;
+      this.y = f.y;
+    } else {
+      this.x = round(random([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]));
+      this.y = round(random([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]));
+    }
   }
   pulsate() {
     if (this.size >= 35) {
@@ -140,10 +146,7 @@ class Body {
     this.attach = attach;
     this.rotation = 0;
     this.h = round(hue(bodyColor));
-    this.s = round(random(
-      saturation(bodyColor) - 10,
-      saturation(bodyColor) + 10
-    ));
+    this.s = round(saturation(bodyColor));
     this.b = round(brightness(bodyColor));
   }
   rotate() {
@@ -187,7 +190,7 @@ class DeadBody {
     this.decaytimer = 28;
   }
   decay() {
-    this.decaytimer -= round(random(1, 3));
+    this.decaytimer -= 2;
     if (this.decaytimer <= 0) {
       deadbody.splice(deadbody.indexOf(this), 1);
     }

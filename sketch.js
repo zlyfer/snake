@@ -28,7 +28,6 @@ function setup() {
   createCanvas(950, 632);
   rectMode(CENTER);
   frameRate(60);
-
   highscore = 0; // Move to initVars()?
   initInputs();
   newSeed();
@@ -173,7 +172,6 @@ function disableSettings(t) {
     seedcheckbox.attribute('disabled', '');
     ticklimitcheckbox.attribute('disabled', '');
     scorelimitcheckbox.attribute('disabled', '');
-    speedslider.attribute('disabled', '');
     seedinput.attribute('disabled', '');
     ticklimitinput.attribute('disabled', '');
     scorelimitinput.attribute('disabled', '');
@@ -184,7 +182,6 @@ function disableSettings(t) {
     seedcheckbox.removeAttribute('disabled');
     ticklimitcheckbox.removeAttribute('disabled');
     scorelimitcheckbox.removeAttribute('disabled');
-    speedslider.removeAttribute('disabled');
     seedinput.removeAttribute('disabled');
     ticklimitinput.removeAttribute('disabled');
     scorelimitinput.removeAttribute('disabled');
@@ -200,7 +197,6 @@ function applyCustomReplay() {
     if (
       r != undefined &&
       r.length % 2 == 0 &&
-      rs['speed'] != undefined &&
       rs['borders'] != undefined &&
       rs['biteoff'] != undefined &&
       rs['infinity'] != undefined &&
@@ -251,7 +247,6 @@ function applySettings() {
   }
   if (!(gameover)) {
     applyCustomReplay();
-    replaySettings['speed'] = 30 - speed;
     replaySettings['borders'] = borders;
     replaySettings['biteoff'] = biteoff;
     replaySettings['infinity'] = infinity;
@@ -264,7 +259,6 @@ function applySettings() {
 
 function applyReplaySettings() {
   applyCustomReplay();
-  speed = replaySettings['speed'];
   borders = replaySettings['borders'];
   biteoff = replaySettings['biteoff'];
   infinity = replaySettings['infinity'];
@@ -272,7 +266,6 @@ function applyReplaySettings() {
   scorelimit = replaySettings['scorelimit'];
   ticklimit = replaySettings['ticklimit'];
 
-  speedslider.value(speed);
   borderscheckbox.checked(borders);
   biteoffcheckbox.checked(biteoff);
   infinitycheckbox.checked(infinity);
@@ -311,7 +304,7 @@ function newGame() {
   }
   gameover = dir = newdir = seedset = false;
   snake = new Snake();
-  food = new Food(snake, []);
+  food = new Food();
   time = score = rtime = ftime = ttime = realscore = 0;
   if (ticklimit) {
     ticks = ticklimit;
@@ -333,12 +326,12 @@ function showOldfield() {
 
 function saveOldfield() {
   let ns, nf;
-  ns = new Snake();
+  ns = new Snake(snake);
   ns.x = snake.x;
   ns.y = snake.y;
   oldfield['snake'] = ns;
 
-  nf = new Food();
+  nf = new Food(food);
   nf.x = food.x;
   nf.y = food.y;
   nf.size = food.size;
@@ -383,6 +376,7 @@ function playGame() {
       ftime++;
       if (doReplay) {
         disableSettings(true);
+        speed = 30 - speedslider.value();
         rindex = replay.indexOf(ftime);
         if (rindex != -1) {
           if (replay[rindex + 1] == 0) {
@@ -415,7 +409,7 @@ function playGame() {
       time = 0;
     }
     if (!(food)) {
-      food = new Food(snake, body);
+      food = new Food();
       realscore++;
       if (highscore <= score) {
         highscore++;
