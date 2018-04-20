@@ -115,8 +115,8 @@ class Food {
       this.x = f.x;
       this.y = f.y;
     } else {
-      this.x = round(random([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]));
-      this.y = round(random([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]));
+      this.x = round(random(14));
+      this.y = round(random(14));
     }
   }
   pulsate() {

@@ -83,7 +83,7 @@ function isValidJson(js) {
 }
 
 function initInputs() {
-  speedslider = createSlider(0, 29, 25);
+  speedslider = createSlider(0, 25, 25);
   speedslider.position(765, 249);
   speedslider.style('width', '100px');
   speedslider.style('height', '25px');
