@@ -69,6 +69,7 @@ function keyPressed() {
       newGame();
     }
   } else if (['K', 'k'].indexOf(key) != -1) {
+    replay.push(ticks + 1, 0);
     gameover = true;
   }
 }
@@ -312,7 +313,11 @@ function playGame() {
         speed = 30 - (speedslider.value());
         rindex = replay.indexOf(ftime);
         if (rindex != -1) {
-          dir = abs(replay[rindex + 1]);
+          if (replay[rindex + 1] == 0) {
+            gameover = true;
+          } else {
+            dir = abs(replay[rindex + 1]);
+          }
         }
       } else {
         dir = newdir;
