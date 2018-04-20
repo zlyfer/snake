@@ -4,27 +4,32 @@ class Snake {
       randomSeed(seed);
       seedset = true;
     }
-    this.x = random([2, 7, 12]) * 40;
-    this.y = random([2, 7, 12]) * 40;
+    this.x = random([2, 7, 12]);
+    this.y = random([2, 7, 12]);
+    this.rotation = 0;
   }
-  eat(food) {
+  eat(food, body) {
     if (food.x == this.x && food.y == this.y) {
+      this.rotation = 1;
+      body.forEach(part => {
+        part.rotation = 1;
+      });
       return false;
     } else {
       return food;
     }
   }
   teleport() {
-    if (this.x + 40 > 600) {
+    if (this.x + 1 > 15) {
       this.x = 0;
     }
     if (this.x < 0) {
-      this.x = 560;
+      this.x = 14;
     }
     if (this.y < 0) {
-      this.y = 560;
+      this.y = 14;
     }
-    if (this.y + 40 > 600) {
+    if (this.y + 1 > 15) {
       this.y = 0;
     }
   }
@@ -34,10 +39,10 @@ class Snake {
     }
     if (borders && !(infinity)) {
       if (
-        this.x + 40 > 600 ||
+        this.x + 1 > 15 ||
         this.x < 0 ||
         this.y < 0 ||
-        this.y + 40 > 600
+        this.y + 1 > 15
       ) {
         return true;
       }
@@ -60,59 +65,71 @@ class Snake {
     }
     return false;
   }
+  rotate() {
+    if (this.rotation != 0) {
+      this.rotation += 36;
+    }
+    if (this.rotation >= 360) {
+      this.rotation = 0;
+    }
+  }
   move(dir) {
     switch (dir) {
       case 37:
-        this.x -= 40;
+        this.x -= 1;
         break;
       case 38:
-        this.y -= 40;
+        this.y -= 1;
         break;
       case 39:
-        this.x += 40;
+        this.x += 1;
         break;
       case 40:
-        this.y += 40;
+        this.y += 1;
         break;
     }
   }
   show() {
-    stroke(250);
-    strokeWeight(1);
+    push();
+    translate(this.x * 42 + 22, this.y * 42 + 22);
+    rotate(radians(this.rotation));
+    strokeWeight(0);
+    fill(255);
+    rect(0, 0, 38, 38);
     fill(snakeColor);
-    rect(this.x + 1, this.y + 1, 37, 37);
+    rect(0, 0, 36, 36);
+    pop();
   }
 }
 
 class Food {
   constructor(snake, body) {
-    this.size = round(random(250, 350));
-    this.pulsation = -1;
-    this.x = round(random(14)) * 40;
-    this.y = round(random(14)) * 40;
+    this.size = round(random(20, 35));
+    this.pulsation = 1 / 8;
+    this.x = round(random(14));
+    this.y = round(random(14));
     // while (this.x == snake.x && this.y == snake.y) {
     //   this.x = round(random(14)) * 40;
     //   this.y = round(random(14)) * 40;
     // }
   }
   pulsate() {
-    if (this.size == 350) {
-      this.pulsation = -1;
-    } else if (this.size == 250) {
-      this.pulsation = 1;
+    if (this.size >= 35) {
+      this.pulsation = -1 / 8;
+    } else if (this.size <= 20) {
+      this.pulsation = 1 / 8;
     }
     this.size += this.pulsation;
   }
   show() {
-    stroke(250);
-    strokeWeight(1);
+    push();
+    translate(this.x * 42 + 22, this.y * 42 + 22);
+    strokeWeight(0);
+    fill(255);
+    rect(0, 0, (this.size) + 2, (this.size) + 2);
     fill(foodColor);
-    rect(
-      this.x - 1 + (20 - (this.size / 20)),
-      this.y - 1 + (20 - (this.size / 20)),
-      this.size / 10 + 1,
-      this.size / 10 + 1
-    );
+    rect(0, 0, (this.size), (this.size));
+    pop();
   }
 }
 
@@ -121,24 +138,37 @@ class Body {
     this.x = -40;
     this.y = -40;
     this.attach = attach;
+    this.rotation = 0;
     this.h = round(hue(bodyColor));
-    this.s = round(
-      random(saturation(bodyColor) - 10,
-        saturation(bodyColor) + 10)
-    );
+    this.s = round(random(
+      saturation(bodyColor) - 10,
+      saturation(bodyColor) + 10
+    ));
     this.b = round(brightness(bodyColor));
+  }
+  rotate() {
+    if (this.rotation != 0) {
+      this.rotation += 36;
+    }
+    if (this.rotation >= 180) {
+      this.rotation = 0;
+    }
   }
   follow() {
     this.x = this.attach.x;
     this.y = this.attach.y;
   }
   show() {
-    stroke(250);
-    strokeWeight(1);
+    push();
+    translate(this.x * 42 + 22, this.y * 42 + 22);
+    rotate(radians(this.rotation));
+    strokeWeight(0);
+    fill(255);
+    rect(0, 0, 30, 30);
     colorMode(HSB, 360, 100, 100, 1);
     fill(this.h, this.s, this.b);
-    colorMode(RGB, 255);
-    rect(this.x + 5, this.y + 5, 29, 29);
+    rect(0, 0, 28, 28);
+    pop();
   }
 }
 
@@ -154,25 +184,23 @@ class DeadBody {
     this.h = deadbody.h;
     this.s = deadbody.s;
     this.b = deadbody.b;
-    this.decaytimer = 50;
+    this.decaytimer = 28;
   }
   decay() {
-    this.decaytimer--;
-    if (this.decaytimer == 0) {
+    this.decaytimer -= round(random(1, 3));
+    if (this.decaytimer <= 0) {
       deadbody.splice(deadbody.indexOf(this), 1);
     }
   }
   show() {
-    strokeWeight(1);
-    stroke(250);
+    push();
+    translate(this.x * 42 + 22, this.y * 42 + 22);
+    strokeWeight(0);
+    fill(255);
+    rect(0, 0, this.decaytimer + 2, this.decaytimer + 2);
     colorMode(HSB, 360, 100, 100, 1);
     fill(this.h, this.s, this.b);
-    colorMode(RGB, 255);
-    rect(
-      this.x + ((50 - (this.decaytimer)) / 2) / 2 + 5,
-      this.y + ((50 - (this.decaytimer)) / 2) / 2 + 5,
-      29 - ((50 - (this.decaytimer)) / 2),
-      29 - ((50 - (this.decaytimer)) / 2)
-    );
+    rect(0, 0, this.decaytimer, this.decaytimer);
+    pop();
   }
 }
