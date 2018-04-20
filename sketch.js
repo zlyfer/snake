@@ -1,11 +1,11 @@
 var snake, food, body, deadbody;
 var oldsecond, newdir, newbody, oldfield;
 var gameover, time, dir;
-var seed, seedset, ticklimit, scorelimit;
+var seed, seedset, timelimit, scorelimit;
 var speedslider, borderscheckbox, infinitycheckbox;
 var replayinput;
 var seedcheckbox, seedinput;
-var ticklimitcheckbox, ticklimitinput;
+var timelimitcheckbox, timelimitinput;
 var scorelimitcheckbox, scorelimitinput;
 var speed, ticks, score, highscore, realscore;
 var borders, infinity, biteoff;
@@ -116,20 +116,20 @@ function initInputs() {
   seedinput.style('outline', 'none');
   seedinput.attribute('maxlength', '12');
 
-  ticklimitcheckbox = createCheckbox('', false);
-  ticklimitcheckbox.position(910, 380);
-  ticklimitcheckbox.style('background-color', bgColor3);
-  ticklimitinput = createInput('');
-  ticklimitinput.position(770, 379);
-  ticklimitinput.style('width', '105px');
-  ticklimitinput.style('height', '21px');
-  ticklimitinput.style('background-color', bgColor3);
-  ticklimitinput.style('color', textColor1);
-  ticklimitinput.style('border-color', bgColor2);
-  ticklimitinput.style('border-style', 'solid');
-  ticklimitinput.style('text-align', 'center');
-  ticklimitinput.style('outline', 'none');
-  ticklimitinput.attribute('maxlength', '12');
+  timelimitcheckbox = createCheckbox('', false);
+  timelimitcheckbox.position(910, 380);
+  timelimitcheckbox.style('background-color', bgColor3);
+  timelimitinput = createInput('');
+  timelimitinput.position(770, 379);
+  timelimitinput.style('width', '105px');
+  timelimitinput.style('height', '21px');
+  timelimitinput.style('background-color', bgColor3);
+  timelimitinput.style('color', textColor1);
+  timelimitinput.style('border-color', bgColor2);
+  timelimitinput.style('border-style', 'solid');
+  timelimitinput.style('text-align', 'center');
+  timelimitinput.style('outline', 'none');
+  timelimitinput.attribute('maxlength', '12');
 
   scorelimitcheckbox = createCheckbox('', false);
   scorelimitcheckbox.position(910, 405);
@@ -170,20 +170,20 @@ function disableSettings(t) {
     biteoffcheckbox.attribute('disabled', '');
     infinitycheckbox.attribute('disabled', '');
     seedcheckbox.attribute('disabled', '');
-    ticklimitcheckbox.attribute('disabled', '');
+    timelimitcheckbox.attribute('disabled', '');
     scorelimitcheckbox.attribute('disabled', '');
     seedinput.attribute('disabled', '');
-    ticklimitinput.attribute('disabled', '');
+    timelimitinput.attribute('disabled', '');
     scorelimitinput.attribute('disabled', '');
   } else {
     borderscheckbox.removeAttribute('disabled');
     biteoffcheckbox.removeAttribute('disabled');
     infinitycheckbox.removeAttribute('disabled');
     seedcheckbox.removeAttribute('disabled');
-    ticklimitcheckbox.removeAttribute('disabled');
+    timelimitcheckbox.removeAttribute('disabled');
     scorelimitcheckbox.removeAttribute('disabled');
     seedinput.removeAttribute('disabled');
-    ticklimitinput.removeAttribute('disabled');
+    timelimitinput.removeAttribute('disabled');
     scorelimitinput.removeAttribute('disabled');
   }
 }
@@ -203,7 +203,7 @@ function applyCustomReplay() {
       rs['seed'] != undefined &&
       rs['seedlocked'] != undefined &&
       rs['scorelimit'] != undefined &&
-      rs['ticklimit'] != undefined
+      rs['timelimit'] != undefined
     ) {
       replaySettings = rs;
       replay = r;
@@ -216,8 +216,8 @@ function applySettings() {
   borders = borderscheckbox.checked();
   biteoff = biteoffcheckbox.checked();
   infinity = infinitycheckbox.checked();
-  if (ticklimitinput.value() < 0) {
-    ticklimitinput.value(0);
+  if (timelimitinput.value() < 0) {
+    timelimitinput.value(0);
   }
   if (scorelimitinput.value() < 0) {
     scorelimitinput.value(0);
@@ -230,13 +230,13 @@ function applySettings() {
       }
     }
   }
-  if (ticklimitcheckbox.checked() && !(isNaN(int(ticklimitinput.value())))) {
-    ticklimit = int(ticklimitinput.value());
-    if (ticklimit == 0) {
-      ticklimit = false;
+  if (timelimitcheckbox.checked() && !(isNaN(int(timelimitinput.value())))) {
+    timelimit = (int(timelimitinput.value()) / speed) * 60;
+    if (timelimit == 0) {
+      timelimit = false;
     }
   } else {
-    ticklimit = false;
+    timelimit = false;
   }
   if (
     scorelimitcheckbox.checked() && !(isNaN(int(scorelimitinput.value())))
@@ -253,7 +253,16 @@ function applySettings() {
     replaySettings['seed'] = seed;
     replaySettings['seedlocked'] = seedcheckbox.checked();
     replaySettings['scorelimit'] = scorelimit;
-    replaySettings['ticklimit'] = ticklimit;
+    if (timelimit) {
+      replaySettings['timelimit'] = ((timelimit * speed) / 60);
+    } else {
+      timelimit = false;
+    }
+  }
+  if (timelimit) {
+    ticks = timelimit;
+  } else {
+    ticks = 0;
   }
 }
 
@@ -264,18 +273,18 @@ function applyReplaySettings() {
   infinity = replaySettings['infinity'];
   seed = replaySettings['seed'];
   scorelimit = replaySettings['scorelimit'];
-  ticklimit = replaySettings['ticklimit'];
+  timelimit = replaySettings['timelimit'];
 
   borderscheckbox.checked(borders);
   biteoffcheckbox.checked(biteoff);
   infinitycheckbox.checked(infinity);
   seedcheckbox.checked(replaySettings['seedlocked']);
   seedinput.value(seed);
-  if (ticklimit) {
-    ticklimitinput.value(ticklimit);
-    ticklimitcheckbox.checked(true);
+  if (timelimit) {
+    timelimitinput.value(timelimit);
+    timelimitcheckbox.checked(true);
   } else {
-    ticklimitcheckbox.checked(false);
+    timelimitcheckbox.checked(false);
   }
   if (scorelimit) {
     scorelimitcheckbox.checked(true);
@@ -306,11 +315,6 @@ function newGame() {
   snake = new Snake();
   food = new Food();
   time = score = rtime = ftime = ttime = realscore = 0;
-  if (ticklimit) {
-    ticks = ticklimit;
-  } else {
-    ticks = 0;
-  }
 }
 
 function showOldfield() {
@@ -370,7 +374,7 @@ function playGame() {
       }
     }
     if (time == speed) {
-      if (ticklimit && ticks == 0) {
+      if (timelimit && ticks == 0) {
         endGame();
       }
       ftime++;
@@ -390,7 +394,11 @@ function playGame() {
         disableSettings(false);
       }
       if (dir) {
-        ticks++;
+        if (timelimit) {
+          ticks--
+        } else {
+          ticks++;
+        }
         rtime++;
         if (
           replay[replay.length - 1] != dir - (dir * 2) &&
@@ -480,7 +488,7 @@ function showSidebar() {
   text('Bite Off Mode:', 640, 310);
   text('Infinity Mode:', 640, 335);
   text('Seed:', 640, 360);
-  text('Ticklimit:', 640, 385);
+  text('Timelimit:', 640, 385);
   text('Scorelimit:', 640, 410);
 
   textAlign(RIGHT);
