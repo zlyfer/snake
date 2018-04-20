@@ -1,5 +1,5 @@
 var snake, food, body, deadbody;
-var oldsecond, newdir, newbody;
+var oldsecond, newdir, newbody, oldfield;
 var gameover, time, dir;
 var seed, seedset, ticklimit, scorelimit;
 var speedslider, borderscheckbox, infinitycheckbox;
@@ -7,7 +7,7 @@ var replayinput;
 var seedcheckbox, seedinput;
 var ticklimitcheckbox, ticklimitinput;
 var scorelimitcheckbox, scorelimitinput;
-var speed, ticks, score, highscore;
+var speed, ticks, score, highscore, realscore;
 var borders, infinity, biteoff;
 var ftime, rtime, rindex, doReplay, replaySettings, replay;
 
@@ -165,6 +165,32 @@ function initInputs() {
   }
 }
 
+function disableSettings(t) {
+  if (t) {
+    borderscheckbox.attribute('disabled', '');
+    biteoffcheckbox.attribute('disabled', '');
+    infinitycheckbox.attribute('disabled', '');
+    seedcheckbox.attribute('disabled', '');
+    ticklimitcheckbox.attribute('disabled', '');
+    scorelimitcheckbox.attribute('disabled', '');
+    speedslider.attribute('disabled', '');
+    seedinput.attribute('disabled', '');
+    ticklimitinput.attribute('disabled', '');
+    scorelimitinput.attribute('disabled', '');
+  } else {
+    borderscheckbox.removeAttribute('disabled');
+    biteoffcheckbox.removeAttribute('disabled');
+    infinitycheckbox.removeAttribute('disabled');
+    seedcheckbox.removeAttribute('disabled');
+    ticklimitcheckbox.removeAttribute('disabled');
+    scorelimitcheckbox.removeAttribute('disabled');
+    speedslider.removeAttribute('disabled');
+    seedinput.removeAttribute('disabled');
+    ticklimitinput.removeAttribute('disabled');
+    scorelimitinput.removeAttribute('disabled');
+  }
+}
+
 function applyCustomReplay() {
   let r, rs, js;
   if (replayinput.value() != "" && isValidJson(replayinput.value())) {
@@ -174,6 +200,7 @@ function applyCustomReplay() {
     if (
       r != undefined &&
       r.length % 2 == 0 &&
+      rs['speed'] != undefined &&
       rs['borders'] != undefined &&
       rs['biteoff'] != undefined &&
       rs['infinity'] != undefined &&
@@ -224,6 +251,7 @@ function applySettings() {
   }
   if (!(gameover)) {
     applyCustomReplay();
+    replaySettings['speed'] = 30 - speed;
     replaySettings['borders'] = borders;
     replaySettings['biteoff'] = biteoff;
     replaySettings['infinity'] = infinity;
@@ -236,6 +264,7 @@ function applySettings() {
 
 function applyReplaySettings() {
   applyCustomReplay();
+  speed = replaySettings['speed'];
   borders = replaySettings['borders'];
   biteoff = replaySettings['biteoff'];
   infinity = replaySettings['infinity'];
@@ -243,6 +272,7 @@ function applyReplaySettings() {
   scorelimit = replaySettings['scorelimit'];
   ticklimit = replaySettings['ticklimit'];
 
+  speedslider.value(speed);
   borderscheckbox.checked(borders);
   biteoffcheckbox.checked(biteoff);
   infinitycheckbox.checked(infinity);
@@ -273,6 +303,7 @@ function calcScore(l) {
 function newGame() {
   body = [];
   deadbody = [];
+  oldfield = {};
   if (!(doReplay)) {
     replay = [];
     replaySettings = {};
@@ -281,12 +312,52 @@ function newGame() {
   gameover = dir = newdir = seedset = false;
   snake = new Snake();
   food = new Food(snake, []);
-  time = score = rtime = ftime = ttime = 0;
+  time = score = rtime = ftime = ttime = realscore = 0;
   if (ticklimit) {
     ticks = ticklimit;
   } else {
     ticks = 0;
   }
+}
+
+function showOldfield() {
+  oldfield['snake'].rotate();
+  oldfield['snake'].show();
+  oldfield['food'].pulsate();
+  oldfield['food'].show();
+  for (let i = 0; i < oldfield['body'].length; i++) {
+    oldfield['body'][i].rotate();
+    oldfield['body'][i].show();
+  }
+}
+
+function saveOldfield() {
+  let ns, nf;
+  ns = new Snake();
+  ns.x = snake.x;
+  ns.y = snake.y;
+  oldfield['snake'] = ns;
+
+  nf = new Food();
+  nf.x = food.x;
+  nf.y = food.y;
+  nf.size = food.size;
+  nf.pulsation = nf.pulsation;
+  oldfield['food'] = nf;
+
+  let nb = [];
+  for (let i = 0; i < body.length; i++) {
+    let p = body[i];
+    let np = new Body();
+    np.x = p.x;
+    np.y = p.y;
+    np.rotation = p.rotation;
+    np.h = p.h;
+    np.s = p.s;
+    np.b = p.b;
+    nb.push(np);
+  }
+  oldfield['body'] = nb;
 }
 
 function playGame() {
@@ -298,6 +369,7 @@ function playGame() {
     borderscheckbox.checked(false);
   }
   if (!(gameover)) {
+    saveOldfield();
     if (time < speed) {
       time++;
       if (dir) {
@@ -310,7 +382,7 @@ function playGame() {
       }
       ftime++;
       if (doReplay) {
-        speed = 30 - (speedslider.value());
+        disableSettings(true);
         rindex = replay.indexOf(ftime);
         if (rindex != -1) {
           if (replay[rindex + 1] == 0) {
@@ -321,6 +393,7 @@ function playGame() {
         }
       } else {
         dir = newdir;
+        disableSettings(false);
       }
       if (dir) {
         ticks++;
@@ -343,6 +416,7 @@ function playGame() {
     }
     if (!(food)) {
       food = new Food(snake, body);
+      realscore++;
       if (highscore <= score) {
         highscore++;
       }
@@ -398,17 +472,15 @@ function showSidebar() {
   textAlign(CENTER);
   textSize(20);
   text('Stats', 795, 30);
-  text('Controls', 795, 145);
   text('Settings', 795, 235);
   text('Replay Data', 795, 460);
 
   textAlign(LEFT);
   textSize(18);
   text('Time:', 640, 55);
-  text('Score:', 640, 80);
-  text('Highscore:', 640, 105);
-  text('Movement:', 640, 170);
-  text('Restart:', 640, 195);
+  text('Length:', 640, 80);
+  text('Score:', 640, 105);
+  text('Highscore:', 640, 130);
   text('Speedboost:', 640, 260);
   text('Borders:', 640, 285);
   text('Bite Off Mode:', 640, 310);
@@ -420,9 +492,8 @@ function showSidebar() {
   textAlign(RIGHT);
   text(((ticks * speed) / 60).toFixed(3), 940, 55);
   text(score, 940, 80);
-  text(highscore, 940, 105);
-  text('Arrow Keys', 940, 170);
-  text('R', 940, 195);
+  text(realscore, 940, 105);
+  text(highscore, 940, 130);
   text(speedslider.value() / (25 / 100) + "%", 940, 260);
 }
 
@@ -440,6 +511,8 @@ function endGame() {
   doReplay = false;
   gameover = true;
   dir = false;
+
+  showOldfield();
 
   replayinput.value(JSON.stringify({
     'replaySettings': replaySettings,
