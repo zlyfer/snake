@@ -1,7 +1,7 @@
 var
   snake, food, body, deadbody,
   oldsecond, newdir, newbody, oldfield,
-  gameover, time, dir,
+  gameover, paused, time, dir,
   seed, seedset, timelimit, scorelimit,
   speedslider, borderscheckbox, infinitycheckbox,
   replayinput,
@@ -45,7 +45,7 @@ function draw() {
 }
 
 function keyPressed() {
-  if ([37, 38, 39, 40].indexOf(keyCode) != -1) {
+  if ([37, 38, 39, 40].indexOf(keyCode) != -1 && !(paused)) {
     seedinput.value(seed);
     if (
       ((dir - keyCode == 2 || dir - keyCode == -2)) && body.length > 0 &&
@@ -57,22 +57,29 @@ function keyPressed() {
     if ((dir - keyCode != 2 && dir - keyCode != -2) || infinity) {
       newdir = keyCode;
     }
-  } else if (['R', 'r'].indexOf(key) != -1) {
+  } else if (key == 'R') {
     doReplay = false;
     if (!(seedcheckbox.checked())) {
       newSeed();
     }
     newGame();
     applySettings();
-  } else if (['F', 'f'].indexOf(key) != -1) {
+  } else if (key == 'F') {
     if (gameover || (replayinput.value() != "" && isValidJson(replayinput.value()))) {
       doReplay = true;
       applyReplaySettings();
       newGame();
     }
-  } else if (['K', 'k'].indexOf(key) != -1) {
+  } else if (key == "K") {
     replay.push(ticks + 1, 0);
     gameover = true;
+  } else if (key == ' ') {
+    paused = !paused;
+  } else if (key == 'E') {
+    snake.rotation = 1;
+    body.forEach(part => {
+      part.rotation = 1;
+    });
   }
 }
 
@@ -268,7 +275,7 @@ function newGame() {
     replaySettings = {};
     replayinput.value("");
   }
-  gameover = dir = newdir = seedset = false;
+  gameover = dir = newdir = seedset = paused = false;
   snake = new Snake();
   food = new Food();
   time = score = rtime = ftime = ttime = realscore = 0;
@@ -325,9 +332,11 @@ function playGame() {
   if (!(gameover)) {
     saveOldfield();
     if (time < speed) {
-      time++;
-      if (dir) {
-        ttime++;
+      if (!(paused)) {
+        time++;
+        if (dir) {
+          ttime++;
+        }
       }
     }
     if (time == speed) {
@@ -419,6 +428,9 @@ function showGame() {
     part.rotate();
     part.show();
   });
+  if (paused) {
+    pausedGame();
+  }
 }
 
 function showSidebar() {
@@ -466,9 +478,28 @@ function showField() {
   }
 }
 
+function pausedGame() {
+  fill(bgColor4);
+  strokeWeight(0);
+  rect(316, 295, 632, 254);
+
+  fill(textColor2);
+  textAlign(CENTER);
+  stroke(textColor3);
+
+  textSize(64);
+  strokeWeight(3);
+  text('GAME PAUSED!', 316, 260);
+
+  textSize(32);
+  strokeWeight(2);
+  text('PRESS \'SPACE\' TO RESUME', 316, 350);
+}
+
 function endGame() {
   doReplay = false;
   gameover = true;
+  paused = false;
   dir = false;
 
   showOldfield();
