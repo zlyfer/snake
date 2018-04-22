@@ -1,26 +1,29 @@
-var snake, food, body, deadbody;
-var oldsecond, newdir, newbody, oldfield;
-var gameover, time, dir;
-var seed, seedset, timelimit, scorelimit;
-var speedslider, borderscheckbox, infinitycheckbox;
-var replayinput;
-var seedcheckbox, seedinput;
-var timelimitcheckbox, timelimitinput;
-var scorelimitcheckbox, scorelimitinput;
-var speed, ticks, score, highscore, realscore;
-var borders, infinity, biteoff;
-var ftime, rtime, rindex, doReplay, replaySettings, replay;
+var
+  snake, food, body, deadbody,
+  oldsecond, newdir, newbody, oldfield,
+  gameover, time, dir,
+  seed, seedset, timelimit, scorelimit,
+  speedslider, borderscheckbox, infinitycheckbox,
+  replayinput,
+  seedcheckbox, seedinput,
+  timelimitcheckbox, timelimitinput,
+  scorelimitcheckbox, scorelimitinput,
+  speed, ticks, score, highscore, realscore,
+  borders, infinity, biteoff,
+  ftime, rtime, rindex, doReplay, replaySettings, replay;
 
-const snakeColor = 'rgb(25, 118, 210)';
-const bodyColor = 'rgb(30, 136, 229)';
-const foodColor = 'rgb(244, 67, 54)';
-const textColor1 = 'rgb(255, 255, 255)';
-const textColor2 = 'rgb(229, 57, 53)';
-const textColor3 = 'rgb(250, 250, 250)';
-const bgColor1 = 'rgb(139, 195, 74)';
-const bgColor2 = 'rgb(76, 175, 80)';
-const bgColor3 = 'rgb(27, 94, 32)';
-const bgColor4 = 'rgba(0, 0, 0, 0.3)';
+const
+  snakeColor = 'rgb(25, 118, 210)',
+  bodyColor = 'rgb(30, 136, 229)',
+  foodColor = 'rgb(244, 67, 54)',
+  textColor1 = 'rgb(255, 255, 255)',
+  textColor2 = 'rgb(229, 57, 53)',
+  textColor3 = 'rgb(250, 250, 250)',
+  bgColor1 = 'rgb(139, 195, 74)',
+  bgColor2 = 'rgb(76, 175, 80)',
+  bgColor3 = 'rgb(27, 94, 32)',
+  bgColor4 = 'rgba(0, 0, 0, 0.3)',
+  bgColor5 = 'rgb(224, 224, 224)';
 
 function preload() {}
 
@@ -84,89 +87,41 @@ function isValidJson(js) {
 
 function initInputs() {
   speedslider = createSlider(0, 25, 25);
-  speedslider.position(765, 249);
-  speedslider.style('width', '100px');
-  speedslider.style('height', '25px');
-  speedslider.style('background-color', bgColor3);
+  speedslider.position(765, 250);
 
   borderscheckbox = createCheckbox('', true);
-  borderscheckbox.position(910, 280);
-  borderscheckbox.style('background-color', bgColor3);
+  borderscheckbox.position(910, 276);
 
   biteoffcheckbox = createCheckbox('', false);
-  biteoffcheckbox.position(910, 305);
-  biteoffcheckbox.style('background-color', bgColor3);
+  biteoffcheckbox.position(910, 301);
 
   infinitycheckbox = createCheckbox('', false);
-  infinitycheckbox.position(910, 330);
-  infinitycheckbox.style('background-color', bgColor3);
+  infinitycheckbox.position(910, 326);
 
   seedcheckbox = createCheckbox('', false);
-  seedcheckbox.position(910, 355);
-  seedcheckbox.style('background-color', bgColor3);
+  seedcheckbox.position(910, 351);
   seedinput = createInput('');
-  seedinput.position(770, 354);
-  seedinput.style('width', '105px');
-  seedinput.style('height', '21px');
-  seedinput.style('background-color', bgColor3);
-  seedinput.style('color', textColor1);
-  seedinput.style('border-color', bgColor2);
-  seedinput.style('border-style', 'solid');
-  seedinput.style('text-align', 'center');
-  seedinput.style('outline', 'none');
+  seedinput.position(770, 352);
   seedinput.attribute('maxlength', '12');
 
   timelimitcheckbox = createCheckbox('', false);
-  timelimitcheckbox.position(910, 380);
-  timelimitcheckbox.style('background-color', bgColor3);
+  timelimitcheckbox.position(910, 376);
   timelimitinput = createInput('');
-  timelimitinput.position(770, 379);
-  timelimitinput.style('width', '105px');
-  timelimitinput.style('height', '21px');
-  timelimitinput.style('background-color', bgColor3);
-  timelimitinput.style('color', textColor1);
-  timelimitinput.style('border-color', bgColor2);
-  timelimitinput.style('border-style', 'solid');
-  timelimitinput.style('text-align', 'center');
-  timelimitinput.style('outline', 'none');
+  timelimitinput.position(770, 377);
   timelimitinput.attribute('maxlength', '12');
 
   scorelimitcheckbox = createCheckbox('', false);
-  scorelimitcheckbox.position(910, 405);
-  scorelimitcheckbox.style('background-color', bgColor3);
+  scorelimitcheckbox.position(910, 401);
   scorelimitinput = createInput('');
-  scorelimitinput.position(770, 404);
-  scorelimitinput.style('width', '105px');
-  scorelimitinput.style('height', '21px');
-  scorelimitinput.style('background-color', bgColor3);
-  scorelimitinput.style('color', textColor1);
-  scorelimitinput.style('border-color', bgColor2);
-  scorelimitinput.style('border-style', 'solid');
-  scorelimitinput.style('text-align', 'center');
-  scorelimitinput.style('outline', 'none');
+  scorelimitinput.position(770, 402);
   scorelimitinput.attribute('maxlength', '12');
 
   replayinput = createElement('textarea');
   replayinput.position(660, 480);
-  replayinput.style('width', '280px');
-  replayinput.style('height', '150px');
-  replayinput.style('background-color', bgColor3);
-  replayinput.style('color', textColor1);
-  replayinput.style('border-color', bgColor2);
-  replayinput.style('border-style', 'solid');
-  replayinput.style('outline', 'none');
-  replayinput.style('resize', 'none');
-  replayinput.style('overflow', 'hidden');
-  replayinput.id('ri');
-  document.getElementById('ri').onclick = function() {
-    this.focus();
-    this.select();
-  }
 }
 
 function disableSettings(t) {
   if (t) {
-    speedslider.attribute('disabled', '');
     borderscheckbox.attribute('disabled', '');
     biteoffcheckbox.attribute('disabled', '');
     infinitycheckbox.attribute('disabled', '');
@@ -177,7 +132,6 @@ function disableSettings(t) {
     timelimitinput.attribute('disabled', '');
     scorelimitinput.attribute('disabled', '');
   } else {
-    speedslider.removeAttribute('disabled');
     borderscheckbox.removeAttribute('disabled');
     biteoffcheckbox.removeAttribute('disabled');
     infinitycheckbox.removeAttribute('disabled');
@@ -199,7 +153,6 @@ function applyCustomReplay() {
     if (
       r != undefined &&
       r.length % 2 == 0 &&
-      rs['speed'] != undefined &&
       rs['borders'] != undefined &&
       rs['biteoff'] != undefined &&
       rs['infinity'] != undefined &&
@@ -250,7 +203,6 @@ function applySettings() {
   }
   if (!(gameover)) {
     applyCustomReplay();
-    replaySettings['speed'] = speed;
     replaySettings['borders'] = borders;
     replaySettings['biteoff'] = biteoff;
     replaySettings['infinity'] = infinity;
@@ -260,7 +212,7 @@ function applySettings() {
     if (timelimit) {
       replaySettings['timelimit'] = round(((timelimit * speed) / 60));
     } else {
-      timelimit = false;
+      replaySettings['timelimit'] = false;
     }
   }
   if (timelimit) {
@@ -272,7 +224,6 @@ function applySettings() {
 
 function applyReplaySettings() {
   applyCustomReplay();
-  speed = replaySettings['speed'];
   borders = replaySettings['borders'];
   biteoff = replaySettings['biteoff'];
   infinity = replaySettings['infinity'];
@@ -525,7 +476,7 @@ function endGame() {
   replayinput.value(JSON.stringify({
     'replaySettings': replaySettings,
     'replay': replay
-  }));
+  }, null, 1));
 
   fill(bgColor4);
   strokeWeight(0);
