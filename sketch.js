@@ -411,14 +411,14 @@ function showGame() {
     deadpart.show();
     deadpart.decay();
   });
-  body.forEach(part => {
-    part.rotate();
-    part.show();
-  });
   snake.show();
   snake.rotate();
   food.pulsate();
   food.show();
+  body.forEach(part => {
+    part.rotate();
+    part.show();
+  });
 }
 
 function showSidebar() {
@@ -476,7 +476,7 @@ function endGame() {
   replayinput.value(JSON.stringify({
     'replaySettings': replaySettings,
     'replay': replay
-  }, null, 1));
+  }));
 
   fill(bgColor4);
   strokeWeight(0);
