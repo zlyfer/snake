@@ -72,7 +72,7 @@ class Snake {
   }
   rotate() {
     if (this.rotation != 0) {
-      this.rotation += 36;
+      this.rotation += 18;
     }
     if (this.rotation >= 360) {
       this.rotation = 0;
@@ -140,22 +140,20 @@ class Food {
 }
 
 class Body {
-  constructor(attach) {
+  constructor(attach = {
+    x: -40,
+    y: -40
+  }) {
     this.x = -40;
     this.y = -40;
-    this.attach = attach;
     this.rotation = 0;
+    this.attach = attach;
     this.h = round(hue(bodyColor));
     this.s = round(saturation(bodyColor));
     this.b = round(brightness(bodyColor));
   }
   rotate() {
-    if (this.rotation != 0) {
-      this.rotation += 36;
-    }
-    if (this.rotation >= 180) {
-      this.rotation = 0;
-    }
+    this.rotation = this.attach.rotation;
   }
   follow() {
     this.x = this.attach.x;
