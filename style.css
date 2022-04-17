@@ -9,7 +9,7 @@
   --bgColor2: rgb(76, 175, 80);
   --bgColor3: rgb(27, 94, 32);
   --bgColor4: rgba(0, 0, 0, 0.3);
-  --bgColor5: rgb(224, 224, 224);
+  --bgColor5: rgb(22, 22, 22);
 }
 
 textarea::-webkit-scrollbar {
@@ -36,7 +36,8 @@ body {
   background-color: var(--bgColor5);
 }
 
-input, textarea {
+input,
+textarea {
   background-color: var(--bgColor3);
   color: var(--textColor1);
   outline: none;
@@ -79,7 +80,8 @@ input[type="range"]::-moz-range-thumb {
   border-radius: 0;
 }
 
-input:not([type="range"]), textarea {
+input:not([type="range"]),
+textarea {
   border: 2px solid var(--bgColor2);
 }
 
@@ -106,5 +108,5 @@ input[type="checkbox"] {
 
 input[type="checkbox"]:checked {
   box-shadow: 0 0 0 2px var(--bgColor3) inset;
-  background-color: var(--bgColor1)
+  background-color: var(--bgColor1);
 }
