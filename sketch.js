@@ -1,29 +1,57 @@
-var
-  snake, food, body, deadbody,
-  oldsecond, newdir, newbody, oldfield,
-  gameover, paused, time, dir,
-  seed, seedset, timelimit, scorelimit,
-  speedslider, borderscheckbox, infinitycheckbox,
-  replayinput,
-  seedcheckbox, seedinput,
-  timelimitcheckbox, timelimitinput,
-  scorelimitcheckbox, scorelimitinput,
-  speed, ticks, score, highscore, realscore,
-  borders, infinity, biteoff,
-  ftime, rtime, rindex, doReplay, replaySettings, replay;
+// jshint esversion: 6
 
-const
-  snakeColor = 'rgb(25, 118, 210)',
-  bodyColor = 'rgb(30, 136, 229)',
-  foodColor = 'rgb(244, 67, 54)',
-  textColor1 = 'rgb(255, 255, 255)',
-  textColor2 = 'rgb(229, 57, 53)',
-  textColor3 = 'rgb(250, 250, 250)',
-  bgColor1 = 'rgb(139, 195, 74)',
-  bgColor2 = 'rgb(76, 175, 80)',
-  bgColor3 = 'rgb(27, 94, 32)',
-  bgColor4 = 'rgba(0, 0, 0, 0.3)',
-  bgColor5 = 'rgb(224, 224, 224)';
+var snake,
+  food,
+  body,
+  deadbody,
+  oldsecond,
+  newdir,
+  newbody,
+  oldfield,
+  gameover,
+  paused,
+  time,
+  dir,
+  seed,
+  seedset,
+  timelimit,
+  scorelimit,
+  speedslider,
+  borderscheckbox,
+  infinitycheckbox,
+  replayinput,
+  seedcheckbox,
+  seedinput,
+  timelimitcheckbox,
+  timelimitinput,
+  scorelimitcheckbox,
+  scorelimitinput,
+  speed,
+  ticks,
+  score,
+  highscore,
+  realscore,
+  borders,
+  infinity,
+  biteoff,
+  ftime,
+  rtime,
+  rindex,
+  doReplay,
+  replaySettings,
+  replay;
+
+const snakeColor = "rgb(25, 118, 210)",
+  bodyColor = "rgb(30, 136, 229)",
+  foodColor = "rgb(244, 67, 54)",
+  textColor1 = "rgb(255, 255, 255)",
+  textColor2 = "rgb(229, 57, 53)",
+  textColor3 = "rgb(250, 250, 250)",
+  bgColor1 = "rgb(139, 195, 74)",
+  bgColor2 = "rgb(76, 175, 80)",
+  bgColor3 = "rgb(27, 94, 32)",
+  bgColor4 = "rgba(0, 0, 0, 0.3)",
+  bgColor5 = "rgb(22, 22, 22)";
 
 function preload() {}
 
@@ -45,26 +73,23 @@ function draw() {
 }
 
 function keyPressed() {
-  if ([37, 38, 39, 40].indexOf(keyCode) != -1 && !(paused)) {
+  if ([37, 38, 39, 40].indexOf(keyCode) != -1 && !paused) {
     seedinput.value(seed);
-    if (
-      ((dir - keyCode == 2 || dir - keyCode == -2)) && body.length > 0 &&
-      infinity && biteoff
-    ) {
+    if ((dir - keyCode == 2 || dir - keyCode == -2) && body.length > 0 && infinity && biteoff) {
       deadbody.push(new DeadBody(body[0], snake));
       body.splice(0, 1);
     }
     if ((dir - keyCode != 2 && dir - keyCode != -2) || infinity) {
       newdir = keyCode;
     }
-  } else if (key == 'R') {
+  } else if (key == "R") {
     doReplay = false;
-    if (!(seedcheckbox.checked())) {
+    if (!seedcheckbox.checked()) {
       newSeed();
     }
     newGame();
     applySettings();
-  } else if (key == 'F') {
+  } else if (key == "F") {
     if (gameover || (replayinput.value() != "" && isValidJson(replayinput.value()))) {
       doReplay = true;
       applyReplaySettings();
@@ -73,11 +98,11 @@ function keyPressed() {
   } else if (key == "K") {
     replay.push(ticks + 1, 0);
     gameover = true;
-  } else if (key == ' ') {
+  } else if (key == " ") {
     paused = !paused;
-  } else if (key == 'E') {
+  } else if (key == "E") {
     snake.rotation = 1;
-    body.forEach(part => {
+    body.forEach((part) => {
       part.rotation = 1;
     });
   }
@@ -96,58 +121,58 @@ function initInputs() {
   speedslider = createSlider(0, 25, 25);
   speedslider.position(768, 250);
 
-  borderscheckbox = createCheckbox('', true);
+  borderscheckbox = createCheckbox("", true);
   borderscheckbox.position(910, 276);
 
-  biteoffcheckbox = createCheckbox('', false);
+  biteoffcheckbox = createCheckbox("", false);
   biteoffcheckbox.position(910, 301);
 
-  infinitycheckbox = createCheckbox('', false);
+  infinitycheckbox = createCheckbox("", false);
   infinitycheckbox.position(910, 326);
 
-  seedcheckbox = createCheckbox('', false);
+  seedcheckbox = createCheckbox("", false);
   seedcheckbox.position(910, 351);
-  seedinput = createInput('');
+  seedinput = createInput("");
   seedinput.position(770, 352);
-  seedinput.attribute('maxlength', '12');
+  seedinput.attribute("maxlength", "12");
 
-  timelimitcheckbox = createCheckbox('', false);
+  timelimitcheckbox = createCheckbox("", false);
   timelimitcheckbox.position(910, 376);
-  timelimitinput = createInput('');
+  timelimitinput = createInput("");
   timelimitinput.position(770, 377);
-  timelimitinput.attribute('maxlength', '12');
+  timelimitinput.attribute("maxlength", "12");
 
-  scorelimitcheckbox = createCheckbox('', false);
+  scorelimitcheckbox = createCheckbox("", false);
   scorelimitcheckbox.position(910, 401);
-  scorelimitinput = createInput('');
+  scorelimitinput = createInput("");
   scorelimitinput.position(770, 402);
-  scorelimitinput.attribute('maxlength', '12');
+  scorelimitinput.attribute("maxlength", "12");
 
-  replayinput = createElement('textarea');
+  replayinput = createElement("textarea");
   replayinput.position(660, 480);
 }
 
 function disableSettings(t) {
   if (t) {
-    borderscheckbox.attribute('disabled', '');
-    biteoffcheckbox.attribute('disabled', '');
-    infinitycheckbox.attribute('disabled', '');
-    seedcheckbox.attribute('disabled', '');
-    timelimitcheckbox.attribute('disabled', '');
-    scorelimitcheckbox.attribute('disabled', '');
-    seedinput.attribute('disabled', '');
-    timelimitinput.attribute('disabled', '');
-    scorelimitinput.attribute('disabled', '');
+    borderscheckbox.attribute("disabled", "");
+    biteoffcheckbox.attribute("disabled", "");
+    infinitycheckbox.attribute("disabled", "");
+    seedcheckbox.attribute("disabled", "");
+    timelimitcheckbox.attribute("disabled", "");
+    scorelimitcheckbox.attribute("disabled", "");
+    seedinput.attribute("disabled", "");
+    timelimitinput.attribute("disabled", "");
+    scorelimitinput.attribute("disabled", "");
   } else {
-    borderscheckbox.removeAttribute('disabled');
-    biteoffcheckbox.removeAttribute('disabled');
-    infinitycheckbox.removeAttribute('disabled');
-    seedcheckbox.removeAttribute('disabled');
-    timelimitcheckbox.removeAttribute('disabled');
-    scorelimitcheckbox.removeAttribute('disabled');
-    seedinput.removeAttribute('disabled');
-    timelimitinput.removeAttribute('disabled');
-    scorelimitinput.removeAttribute('disabled');
+    borderscheckbox.removeAttribute("disabled");
+    biteoffcheckbox.removeAttribute("disabled");
+    infinitycheckbox.removeAttribute("disabled");
+    seedcheckbox.removeAttribute("disabled");
+    timelimitcheckbox.removeAttribute("disabled");
+    scorelimitcheckbox.removeAttribute("disabled");
+    seedinput.removeAttribute("disabled");
+    timelimitinput.removeAttribute("disabled");
+    scorelimitinput.removeAttribute("disabled");
   }
 }
 
@@ -155,19 +180,9 @@ function applyCustomReplay() {
   let r, rs, js;
   if (replayinput.value() != "" && isValidJson(replayinput.value())) {
     js = JSON.parse(replayinput.value());
-    rs = js['replaySettings'];
-    r = js['replay'];
-    if (
-      r != undefined &&
-      r.length % 2 == 0 &&
-      rs['borders'] != undefined &&
-      rs['biteoff'] != undefined &&
-      rs['infinity'] != undefined &&
-      rs['seed'] != undefined &&
-      rs['seedlocked'] != undefined &&
-      rs['scorelimit'] != undefined &&
-      rs['timelimit'] != undefined
-    ) {
+    rs = js["replaySettings"];
+    r = js["replay"];
+    if (r != undefined && r.length % 2 == 0 && rs["borders"] != undefined && rs["biteoff"] != undefined && rs["infinity"] != undefined && rs["seed"] != undefined && rs["seedlocked"] != undefined && rs["scorelimit"] != undefined && rs["timelimit"] != undefined) {
       replaySettings = rs;
       replay = r;
     }
@@ -175,7 +190,7 @@ function applyCustomReplay() {
 }
 
 function applySettings() {
-  speed = 30 - (speedslider.value());
+  speed = 30 - speedslider.value();
   borders = borderscheckbox.checked();
   biteoff = biteoffcheckbox.checked();
   infinity = infinitycheckbox.checked();
@@ -185,15 +200,15 @@ function applySettings() {
   if (scorelimitinput.value() < 0) {
     scorelimitinput.value(0);
   }
-  if (seed != int(seedinput.value()) && !(isNaN(int(seedinput.value())))) {
+  if (seed != int(seedinput.value()) && !isNaN(int(seedinput.value()))) {
     if (seedinput.value()) {
       seed = int(seedinput.value());
-      if (!(gameover)) {
+      if (!gameover) {
         newGame();
       }
     }
   }
-  if (timelimitcheckbox.checked() && !(isNaN(int(timelimitinput.value())))) {
+  if (timelimitcheckbox.checked() && !isNaN(int(timelimitinput.value()))) {
     timelimit = round((int(timelimitinput.value()) / speed) * 60);
     if (timelimit == 0) {
       timelimit = false;
@@ -201,25 +216,23 @@ function applySettings() {
   } else {
     timelimit = false;
   }
-  if (
-    scorelimitcheckbox.checked() && !(isNaN(int(scorelimitinput.value())))
-  ) {
+  if (scorelimitcheckbox.checked() && !isNaN(int(scorelimitinput.value()))) {
     scorelimit = int(scorelimitinput.value());
   } else {
     scorelimit = false;
   }
-  if (!(gameover)) {
+  if (!gameover) {
     applyCustomReplay();
-    replaySettings['borders'] = borders;
-    replaySettings['biteoff'] = biteoff;
-    replaySettings['infinity'] = infinity;
-    replaySettings['seed'] = seed;
-    replaySettings['seedlocked'] = seedcheckbox.checked();
-    replaySettings['scorelimit'] = scorelimit;
+    replaySettings["borders"] = borders;
+    replaySettings["biteoff"] = biteoff;
+    replaySettings["infinity"] = infinity;
+    replaySettings["seed"] = seed;
+    replaySettings["seedlocked"] = seedcheckbox.checked();
+    replaySettings["scorelimit"] = scorelimit;
     if (timelimit) {
-      replaySettings['timelimit'] = round(((timelimit * speed) / 60));
+      replaySettings["timelimit"] = round((timelimit * speed) / 60);
     } else {
-      replaySettings['timelimit'] = false;
+      replaySettings["timelimit"] = false;
     }
   }
   if (timelimit) {
@@ -231,17 +244,17 @@ function applySettings() {
 
 function applyReplaySettings() {
   applyCustomReplay();
-  borders = replaySettings['borders'];
-  biteoff = replaySettings['biteoff'];
-  infinity = replaySettings['infinity'];
-  seed = replaySettings['seed'];
-  scorelimit = replaySettings['scorelimit'];
-  timelimit = replaySettings['timelimit'];
+  borders = replaySettings["borders"];
+  biteoff = replaySettings["biteoff"];
+  infinity = replaySettings["infinity"];
+  seed = replaySettings["seed"];
+  scorelimit = replaySettings["scorelimit"];
+  timelimit = replaySettings["timelimit"];
 
   borderscheckbox.checked(borders);
   biteoffcheckbox.checked(biteoff);
   infinitycheckbox.checked(infinity);
-  seedcheckbox.checked(replaySettings['seedlocked']);
+  seedcheckbox.checked(replaySettings["seedlocked"]);
   seedinput.value(seed);
   if (timelimit) {
     timelimitinput.value(timelimit);
@@ -263,14 +276,14 @@ function newSeed() {
 }
 
 function calcScore(l) {
-  return ((31 - speed) * l);
+  return (31 - speed) * l;
 }
 
 function newGame() {
   body = [];
   deadbody = [];
   oldfield = {};
-  if (!(doReplay)) {
+  if (!doReplay) {
     replay = [];
     replaySettings = {};
     replayinput.value("");
@@ -282,13 +295,13 @@ function newGame() {
 }
 
 function showOldfield() {
-  oldfield['snake'].rotate();
-  oldfield['snake'].show();
-  oldfield['food'].pulsate();
-  oldfield['food'].show();
-  for (let i = 0; i < oldfield['body'].length; i++) {
-    oldfield['body'][i].rotate();
-    oldfield['body'][i].show();
+  oldfield["snake"].rotate();
+  oldfield["snake"].show();
+  oldfield["food"].pulsate();
+  oldfield["food"].show();
+  for (let i = 0; i < oldfield["body"].length; i++) {
+    oldfield["body"][i].rotate();
+    oldfield["body"][i].show();
   }
 }
 
@@ -297,14 +310,14 @@ function saveOldfield() {
   ns = new Snake(snake);
   ns.x = snake.x;
   ns.y = snake.y;
-  oldfield['snake'] = ns;
+  oldfield["snake"] = ns;
 
   nf = new Food(food);
   nf.x = food.x;
   nf.y = food.y;
   nf.size = food.size;
   nf.pulsation = nf.pulsation;
-  oldfield['food'] = nf;
+  oldfield["food"] = nf;
 
   let nb = [];
   for (let i = 0; i < body.length; i++) {
@@ -318,21 +331,21 @@ function saveOldfield() {
     np.b = p.b;
     nb.push(np);
   }
-  oldfield['body'] = nb;
+  oldfield["body"] = nb;
 }
 
 function playGame() {
-  if (!(dir)) {
+  if (!dir) {
     applySettings();
   }
   if (infinity) {
     borders = false;
     borderscheckbox.checked(false);
   }
-  if (!(gameover)) {
+  if (!gameover) {
     saveOldfield();
     if (time < speed) {
-      if (!(paused)) {
+      if (!paused) {
         time++;
         if (dir) {
           ttime++;
@@ -361,17 +374,14 @@ function playGame() {
       }
       if (dir) {
         if (timelimit) {
-          ticks--
+          ticks--;
         } else {
           ticks++;
         }
         rtime++;
-        if (
-          replay[replay.length - 1] != dir - (dir * 2) &&
-          dir != 0 && newdir != 0
-        ) {
+        if (replay[replay.length - 1] != dir - dir * 2 && dir != 0 && newdir != 0) {
           replay.push(rtime);
-          replay.push(newdir - (newdir * 2));
+          replay.push(newdir - newdir * 2);
         }
       }
       if (body.length > 0) {
@@ -382,7 +392,7 @@ function playGame() {
       snake.move(dir);
       time = 0;
     }
-    if (!(food)) {
+    if (!food) {
       food = new Food();
       realscore++;
       if (highscore <= score) {
@@ -391,12 +401,12 @@ function playGame() {
       if (body.length == 0) {
         newbody = new Body(snake);
       } else {
-        newbody = new Body(body[body.length - 1])
+        newbody = new Body(body[body.length - 1]);
       }
       newbody.rotation = 1;
       body.push(newbody);
     }
-    if (!(borders)) {
+    if (!borders) {
       snake.teleport();
     }
   }
@@ -416,7 +426,7 @@ function playGame() {
 }
 
 function showGame() {
-  deadbody.forEach(deadpart => {
+  deadbody.forEach((deadpart) => {
     deadpart.show();
     deadpart.decay();
   });
@@ -424,7 +434,7 @@ function showGame() {
   snake.rotate();
   food.pulsate();
   food.show();
-  body.forEach(part => {
+  body.forEach((part) => {
     part.rotate();
     part.show();
   });
@@ -442,23 +452,23 @@ function showSidebar() {
 
   textAlign(CENTER);
   textSize(20);
-  text('Stats', 795, 30);
-  text('Settings', 795, 235);
-  text('Replay Data', 795, 460);
+  text("Stats", 795, 30);
+  text("Settings", 795, 235);
+  text("Replay Data", 795, 460);
 
   textAlign(LEFT);
   textSize(18);
-  text('Time:', 640, 55);
-  text('Length:', 640, 80);
-  text('Score:', 640, 105);
-  text('Highscore:', 640, 130);
-  text('Speedboost:', 640, 260);
-  text('Borders:', 640, 285);
-  text('Bite Off Mode:', 640, 310);
-  text('Infinity Mode:', 640, 335);
-  text('Seed:', 640, 360);
-  text('Timelimit:', 640, 385);
-  text('Scorelimit:', 640, 410);
+  text("Time:", 640, 55);
+  text("Length:", 640, 80);
+  text("Score:", 640, 105);
+  text("Highscore:", 640, 130);
+  text("Speedboost:", 640, 260);
+  text("Borders:", 640, 285);
+  text("Bite Off Mode:", 640, 310);
+  text("Infinity Mode:", 640, 335);
+  text("Seed:", 640, 360);
+  text("Timelimit:", 640, 385);
+  text("Scorelimit:", 640, 410);
 
   textAlign(RIGHT);
   text(((ticks * speed) / 60).toFixed(3), 940, 55);
@@ -489,11 +499,11 @@ function pausedGame() {
 
   textSize(64);
   strokeWeight(3);
-  text('GAME PAUSED!', 316, 260);
+  text("GAME PAUSED!", 316, 260);
 
   textSize(32);
   strokeWeight(2);
-  text('PRESS \'SPACE\' TO RESUME', 316, 350);
+  text("PRESS 'SPACE' TO RESUME", 316, 350);
 }
 
 function endGame() {
@@ -504,10 +514,12 @@ function endGame() {
 
   showOldfield();
 
-  replayinput.value(JSON.stringify({
-    'replaySettings': replaySettings,
-    'replay': replay
-  }));
+  replayinput.value(
+    JSON.stringify({
+      replaySettings: replaySettings,
+      replay: replay,
+    })
+  );
 
   fill(bgColor4);
   strokeWeight(0);
@@ -519,10 +531,10 @@ function endGame() {
 
   textSize(64);
   strokeWeight(3);
-  text('GAME OVER!', 316, 260);
+  text("GAME OVER!", 316, 260);
 
   textSize(32);
   strokeWeight(2);
-  text('PRESS \'R\' TO RESTART', 316, 320);
-  text('PRESS \'F\' TO WATCH REPLAY', 316, 375);
+  text("PRESS 'R' TO RESTART", 316, 320);
+  text("PRESS 'F' TO WATCH REPLAY", 316, 375);
 }

@@ -1,6 +1,6 @@
 class Snake {
   constructor(s) {
-    if (seed && !(seedset)) {
+    if (seed && !seedset) {
       randomSeed(seed);
       seedset = true;
     }
@@ -16,7 +16,7 @@ class Snake {
   eat(food, body) {
     if (food.x == this.x && food.y == this.y) {
       this.rotation = 1;
-      body.forEach(part => {
+      body.forEach((part) => {
         part.rotation = 1;
       });
       return false;
@@ -42,16 +42,11 @@ class Snake {
     if (gameover) {
       return true;
     }
-    if (borders && !(infinity)) {
-      if (
-        this.x + 1 > 15 ||
-        this.x < 0 ||
-        this.y < 0 ||
-        this.y + 1 > 15
-      ) {
+    if (borders && !infinity) {
+      if (this.x + 1 > 15 || this.x < 0 || this.y < 0 || this.y + 1 > 15) {
         return true;
       }
-      foodColor
+      foodColor;
     }
     for (let i = 0; i < body.length; i++) {
       if (this.x == body[i].x && this.y == body[i].y) {
@@ -132,18 +127,20 @@ class Food {
     translate(this.x * 42 + 22, this.y * 42 + 22);
     strokeWeight(0);
     fill(255);
-    rect(0, 0, (this.size) + 2, (this.size) + 2);
+    rect(0, 0, this.size + 2, this.size + 2);
     fill(foodColor);
-    rect(0, 0, (this.size), (this.size));
+    rect(0, 0, this.size, this.size);
     pop();
   }
 }
 
 class Body {
-  constructor(attach = {
-    x: -40,
-    y: -40
-  }) {
+  constructor(
+    attach = {
+      x: -40,
+      y: -40,
+    }
+  ) {
     this.x = -40;
     this.y = -40;
     this.rotation = 0;
@@ -177,7 +174,7 @@ class DeadBody {
   constructor(deadbody, s = false) {
     if (s) {
       this.x = s.x;
-      this.y = s.y
+      this.y = s.y;
     } else {
       this.x = deadbody.x;
       this.y = deadbody.y;
