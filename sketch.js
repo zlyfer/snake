@@ -19,6 +19,7 @@ var snake,
   speedslider,
   borderscheckbox,
   infinitycheckbox,
+  squarefieldcheckbox,
   replayinput,
   seedcheckbox,
   seedinput,
@@ -39,7 +40,9 @@ var snake,
   rindex,
   doReplay,
   replaySettings,
-  replay;
+  replay,
+  sidebarWidth,
+  fieldSize;
 
 const snakeColor = "rgb(25, 118, 210)",
   bodyColor = "rgb(30, 136, 229)",
@@ -56,7 +59,15 @@ const snakeColor = "rgb(25, 118, 210)",
 function preload() {}
 
 function setup() {
-  createCanvas(950, 632);
+  createCanvas(windowWidth, windowHeight);
+  sidebarWidth = windowWidth / 6.5;
+  fieldSize = {
+    w: floor((width - sidebarWidth) / 40),
+    h: floor(height / 42),
+  };
+  console.log(fieldSize);
+  sidebarWidth += (width - sidebarWidth) / 42;
+  // createCanvas(950, 632);
   rectMode(CENTER);
   frameRate(60);
   highscore = 0; // Move to initVars()?
@@ -118,38 +129,47 @@ function isValidJson(js) {
 }
 
 function initInputs() {
+  const boxPos = width - 30;
+  const sliderPos = width - 180;
+  const inputPos = width - 180;
+  const replayPos = width - 300;
+
   speedslider = createSlider(0, 25, 25);
-  speedslider.position(768, 250);
+  speedslider.position(sliderPos, 240);
 
   borderscheckbox = createCheckbox("", true);
-  borderscheckbox.position(910, 276);
+  borderscheckbox.position(boxPos, 266);
 
   biteoffcheckbox = createCheckbox("", false);
-  biteoffcheckbox.position(910, 301);
+  biteoffcheckbox.position(boxPos, 291);
 
   infinitycheckbox = createCheckbox("", false);
-  infinitycheckbox.position(910, 326);
+  infinitycheckbox.position(boxPos, 316);
 
   seedcheckbox = createCheckbox("", false);
-  seedcheckbox.position(910, 351);
+  seedcheckbox.position(boxPos, 341);
   seedinput = createInput("");
-  seedinput.position(770, 352);
+  seedinput.position(inputPos, 342);
   seedinput.attribute("maxlength", "12");
 
   timelimitcheckbox = createCheckbox("", false);
-  timelimitcheckbox.position(910, 376);
+  timelimitcheckbox.position(boxPos, 366);
   timelimitinput = createInput("");
-  timelimitinput.position(770, 377);
+  timelimitinput.position(inputPos, 367);
   timelimitinput.attribute("maxlength", "12");
 
   scorelimitcheckbox = createCheckbox("", false);
-  scorelimitcheckbox.position(910, 401);
+  scorelimitcheckbox.position(boxPos, 391);
   scorelimitinput = createInput("");
-  scorelimitinput.position(770, 402);
+  scorelimitinput.position(inputPos, 392);
   scorelimitinput.attribute("maxlength", "12");
 
+  squarefieldcheckbox = createCheckbox("", false);
+  squarefieldcheckbox.position(boxPos, 416);
+
   replayinput = createElement("textarea");
-  replayinput.position(660, 480);
+  replayinput.size(280, height - 510 - 20);
+  replayinput.position(replayPos, 510);
 }
 
 function disableSettings(t) {
@@ -157,6 +177,7 @@ function disableSettings(t) {
     borderscheckbox.attribute("disabled", "");
     biteoffcheckbox.attribute("disabled", "");
     infinitycheckbox.attribute("disabled", "");
+    squarefieldcheckbox.attribute("disabled", "");
     seedcheckbox.attribute("disabled", "");
     timelimitcheckbox.attribute("disabled", "");
     scorelimitcheckbox.attribute("disabled", "");
@@ -167,6 +188,7 @@ function disableSettings(t) {
     borderscheckbox.removeAttribute("disabled");
     biteoffcheckbox.removeAttribute("disabled");
     infinitycheckbox.removeAttribute("disabled");
+    squarefieldcheckbox.removeAttribute("disabled");
     seedcheckbox.removeAttribute("disabled");
     timelimitcheckbox.removeAttribute("disabled");
     scorelimitcheckbox.removeAttribute("disabled");
@@ -194,6 +216,7 @@ function applySettings() {
   borders = borderscheckbox.checked();
   biteoff = biteoffcheckbox.checked();
   infinity = infinitycheckbox.checked();
+  squarefield = squarefieldcheckbox.checked();
   if (timelimitinput.value() < 0) {
     timelimitinput.value(0);
   }
@@ -226,6 +249,7 @@ function applySettings() {
     replaySettings["borders"] = borders;
     replaySettings["biteoff"] = biteoff;
     replaySettings["infinity"] = infinity;
+    replaySettings["squarefield"] = squarefield;
     replaySettings["seed"] = seed;
     replaySettings["seedlocked"] = seedcheckbox.checked();
     replaySettings["scorelimit"] = scorelimit;
@@ -247,6 +271,7 @@ function applyReplaySettings() {
   borders = replaySettings["borders"];
   biteoff = replaySettings["biteoff"];
   infinity = replaySettings["infinity"];
+  squarefield = replaySettings["squarefield"];
   seed = replaySettings["seed"];
   scorelimit = replaySettings["scorelimit"];
   timelimit = replaySettings["timelimit"];
@@ -254,6 +279,7 @@ function applyReplaySettings() {
   borderscheckbox.checked(borders);
   biteoffcheckbox.checked(biteoff);
   infinitycheckbox.checked(infinity);
+  squarefieldcheckbox.checked(squarefield);
   seedcheckbox.checked(replaySettings["seedlocked"]);
   seedinput.value(seed);
   if (timelimit) {
@@ -444,54 +470,71 @@ function showGame() {
 }
 
 function showSidebar() {
+  const captionPos = width - sidebarWidth / 2;
+  const labelPos = width - sidebarWidth + 10;
+  const valuePos = width - 10;
+
+  push();
+  rectMode(CORNER);
   fill(bgColor3);
   strokeWeight(0);
-  rect(791, 316, 318, 632);
+  rect(width - sidebarWidth, 0, sidebarWidth, height);
 
   fill(textColor1);
 
   textAlign(CENTER);
   textSize(20);
-  text("Stats", 795, 30);
-  text("Settings", 795, 235);
-  text("Replay Data", 795, 460);
+  text("Stats", captionPos, 25);
+  text("Settings", captionPos, 225);
+  text("Replay Data", captionPos, 490);
 
   textAlign(LEFT);
   textSize(18);
-  text("Time:", 640, 55);
-  text("Length:", 640, 80);
-  text("Score:", 640, 105);
-  text("Highscore:", 640, 130);
-  text("Speedboost:", 640, 260);
-  text("Borders:", 640, 285);
-  text("Bite Off Mode:", 640, 310);
-  text("Infinity Mode:", 640, 335);
-  text("Seed:", 640, 360);
-  text("Timelimit:", 640, 385);
-  text("Scorelimit:", 640, 410);
+  text("Time:", labelPos, 55);
+  text("Length:", labelPos, 80);
+  text("Score:", labelPos, 105);
+  text("Highscore:", labelPos, 130);
+  text("Speedboost:", labelPos, 260);
+  text("Borders:", labelPos, 285);
+  text("Bite Off Mode:", labelPos, 310);
+  text("Infinity Mode:", labelPos, 335);
+  text("Seed:", labelPos, 360);
+  text("Timelimit:", labelPos, 385);
+  text("Scorelimit:", labelPos, 410);
+  text("Square Field:", labelPos, 435);
 
   textAlign(RIGHT);
-  text(((ticks * speed) / 60).toFixed(3), 940, 55);
-  text(score, 940, 80);
-  text(realscore, 940, 105);
-  text(highscore, 940, 130);
-  text(speedslider.value() / (25 / 100) + "%", 940, 260);
+  text(((ticks * speed) / 60).toFixed(3), valuePos, 55);
+  text(score, valuePos, 80);
+  text(realscore, valuePos, 105);
+  text(highscore, valuePos, 130);
+  text(speedslider.value() / (25 / 100) + "%", valuePos, 260);
+  pop();
 }
 
 function showField() {
   fill(bgColor2);
   strokeWeight(0);
-  for (let i = 2; i < 600; i += 42) {
-    for (let j = 2; j < 600; j += 42) {
-      rect(i + 20, j + 20, 40, 40);
+  for (let i = 2; i < width - sidebarWidth; i += fieldSize.w) {
+    for (let j = 2; j < height; j += fieldSize.w) {
+      rect(i + 20, j + 20, fieldSize.w - 2, fieldSize.w - 2);
     }
   }
+
+  // for (let i = 2; i < width - 350; i += 42) {
+  //   for (let j = 2; j < height - 40; j += 42) {
+  //     rect(i + 20, j + 20, 40, 40);
+  //   }
+  // }
 }
 
 function pausedGame() {
+  push();
+  rectMode(CORNER);
   fill(bgColor4);
   strokeWeight(0);
-  rect(316, 295, 632, 254);
+  rect(0, height / 6, width - sidebarWidth, 254);
+  translate((width - sidebarWidth) / 2, 0);
 
   fill(textColor2);
   textAlign(CENTER);
@@ -499,11 +542,12 @@ function pausedGame() {
 
   textSize(64);
   strokeWeight(3);
-  text("GAME PAUSED!", 316, 260);
+  text("GAME PAUSED!", 0, 260);
 
   textSize(32);
   strokeWeight(2);
-  text("PRESS 'SPACE' TO RESUME", 316, 350);
+  text("PRESS 'SPACE' TO RESUME", 0, 350);
+  pop();
 }
 
 function endGame() {
@@ -521,9 +565,12 @@ function endGame() {
     })
   );
 
+  push();
+  rectMode(CORNER);
   fill(bgColor4);
   strokeWeight(0);
-  rect(316, 295, 632, 254);
+  rect(0, height / 6, width - sidebarWidth, 254);
+  translate((width - sidebarWidth) / 2, 0);
 
   fill(textColor2);
   textAlign(CENTER);
@@ -531,10 +578,11 @@ function endGame() {
 
   textSize(64);
   strokeWeight(3);
-  text("GAME OVER!", 316, 260);
+  text("GAME OVER!", 0, 260);
 
   textSize(32);
   strokeWeight(2);
-  text("PRESS 'R' TO RESTART", 316, 320);
-  text("PRESS 'F' TO WATCH REPLAY", 316, 375);
+  text("PRESS 'R' TO RESTART", 0, 320);
+  text("PRESS 'F' TO WATCH REPLAY", 0, 375);
+  pop();
 }

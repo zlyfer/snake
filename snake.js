@@ -46,7 +46,6 @@ class Snake {
       if (this.x + 1 > 15 || this.x < 0 || this.y < 0 || this.y + 1 > 15) {
         return true;
       }
-      foodColor;
     }
     for (let i = 0; i < body.length; i++) {
       if (this.x == body[i].x && this.y == body[i].y) {

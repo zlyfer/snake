@@ -34,6 +34,7 @@ textarea::-webkit-scrollbar-track {
 
 body {
   background-color: var(--bgColor5);
+  margin: 0 !important;
 }
 
 input,
